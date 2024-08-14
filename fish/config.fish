@@ -1,0 +1,11 @@
+if status is-interactive
+    set fish_greeting # remove fish's greeting
+
+    set parts alias functions
+    for part in $parts
+      set file $HOME/.config/fish/parts/$part.fish
+      if test -e $file
+        source $file
+      end
+    end
+end
