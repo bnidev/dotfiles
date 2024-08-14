@@ -1,0 +1,77 @@
+{
+  // Editor - visual customizations
+  "breadcrumbs.enabled": true,
+  "editor.minimap.enabled": false,
+  "editor.lineHeight": 20,
+  "window.zoomLevel": 1,
+  "workbench.editor.empty.hint": "hidden",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "Material Theme Palenight High Contrast",
+
+  // Editor - behavior settings
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": true,
+  "editor.snippetSuggestions": "top",
+  "editor.renderWhitespace": "selection",
+  "editor.tabSize": 2,
+  "extensions.ignoreRecommendations": true,
+  "files.associations": {
+    "*.tmpl": "php",
+    "*.pcss": "scss",
+    "*.ftl": "ftl"
+  },
+  "files.insertFinalNewline": true,
+  "files.simpleDialog.enable": true,
+  "files.trimTrailingWhitespace": true,
+  "keyboard.dispatch": "keyCode",
+
+  // Identation highlighting
+  "indentRainbow.indicatorStyle": "light",
+  "indentRainbow.lightIndicatorStyleLineWidth": 1,
+
+  // VIM key bindings
+  "vim.handleKeys": {
+    "<C-d>": false,
+    "<C-c>": false,
+    "<C-v>": false,
+    "<C-a>": false,
+    "<C-o>": false,
+    "<C-f>": false
+  },
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["u"],
+      "after": [],
+      "commands": [
+        {
+          "command": "undo",
+          "args": []
+        }
+      ]
+    },
+    {
+      "before": ["<C-r>"],
+      "after": [],
+      "commands": [
+        {
+          "command": "redo",
+          "args": []
+        }
+      ]
+    }
+  ],
+
+  // Terminal
+  "terminal.external.linuxExec": "terminator",
+  "terminal.integrated.shell.linux": "fish",
+  "terminal.integrated.env.linux": {},
+
+  // AI assistant
+  "tabnine.experimentalAutoImports": true,
+
+  // Other
+  "terminal.integrated.gpuAcceleration": "off"
+}
