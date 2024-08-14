@@ -1,0 +1,9 @@
+[user]
+  email = diener@wienfluss.net
+  name = Benjamin Diener
+[alias]
+  co = checkout
+  st = status -sb
+  ll = log --oneline
+  last = log -1 HEAD --stat
+  cm = commit -m
