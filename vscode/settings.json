@@ -1,5 +1,9 @@
 {
   // Editor - visual customizations
+  "editor.fontFamily": "Fira Code",
+  "editor.fontSize": 15,
+  "editor.fontLigatures": true,
+  "editor.letterSpacing": 0.15,
   "breadcrumbs.enabled": true,
   "editor.minimap.enabled": false,
   "editor.lineHeight": 20,
