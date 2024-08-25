@@ -8,4 +8,6 @@ if status is-interactive
         source $file
       end
     end
+
+    export LS_COLORS="ow=34" # fix highlight color for directory writable to others (ow)
 end
