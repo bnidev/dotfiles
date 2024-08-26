@@ -10,7 +10,7 @@ module.exports = {
     // default font size in pixels for all tabs
     fontSize: 16,
     // font family with optional fallbacks
-    fontFamily: "Fira Code",
+    fontFamily: "FiraCode Nerd Font",
     // default font weight: 'normal' or 'bold'
     fontWeight: "normal",
     // font weight for bold characters: 'normal' or 'bold'
@@ -144,6 +144,7 @@ module.exports = {
     "hyper-highlight-active-pane",
     "hyper-search",
     "hyperline",
+    "hyper-font-ligatures",
   ],
   config: {
     hyperline: {
