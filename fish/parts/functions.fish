@@ -12,12 +12,14 @@ end
 # automatically run nvm use in directories when .nvmrc is present
 function check_nvm_version --on-variable PWD --description 'Do nvm stuff'
   if test -f .nvmrc
-    set node_version (nvm version)
-    set nvmrc_node_version (nvm version (cat .nvmrc))
+    set node_version (node -v)
+    set nvmrc_node_version (nvm list | grep (cat .nvmrc))
 
-    if [ $nvmrc_node_version = "N/A" ]
+    if set -q $nvmrc_node_version
       nvm install
-    else if [ $nvmrc_node_version != $node_version ]
+    else if string match -q -- "*$node_version" $nvmrc_node_version
+      # already current node version
+    else
       nvm use
     end
   end
