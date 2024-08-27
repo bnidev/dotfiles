@@ -15,7 +15,7 @@ abbr nv 'node --version'
 # misc
 abbr mv 'mv -i'
 abbr cp 'cp -i -p'
-abbr week 'date +%V' # Get week number
+abbr kw 'date +%V' # Get week number
 abbr . 'nautilus .'
 
 # IP addresses
@@ -29,6 +29,8 @@ if type -q eza
   alias ls 'eza --icons'
   abbr ls 'ls -a'
   abbr ll 'ls -la'
+  abbr ld 'ls -lD'
+  abbr lf 'ls -lfa'
   abbr lt 'ls --tree -D -L 2 -I $TREE_IGNORE'
   abbr ltt 'ls --tree -D -L 3 -I $TREE_IGNORE'
   abbr lttt 'ls --tree -D -L 4 -I $TREE_IGNORE'
