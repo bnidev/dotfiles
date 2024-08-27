@@ -1,0 +1,58 @@
+# ~/.config/starship.toml
+
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$git_metrics\
+$fill\
+$nodejs $cmd_duration $time\
+$line_break\
+$character"""
+
+[directory]
+read_only = " 🔒"
+read_only_style = "red"
+style = "cyan bold"
+truncation_length = 4
+truncation_symbol = '…/'
+truncate_to_repo = false
+
+[cmd_duration]
+format = "[$duration]($style)"
+style = "yellow"
+
+[time]
+disabled = false
+style = "white"
+format = '🕙[ $time ]($style) '
+time_format = '%T'
+
+[nodejs]
+style  = "green"
+format = "[$symbol($version )]($style)"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style) )'
+style = "cyan"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+[git_metrics]
+disabled = false
+
+[fill]
+symbol = " "
+
+[character]
+success_symbol = '[❯](bold green) '
+error_symbol = '[X](bold red) '
