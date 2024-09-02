@@ -9,5 +9,8 @@ if status is-interactive
     end
   end
 
-  starship init fish | source
+  # Starship prompt
+  if command -v 'starship' &>/dev/null
+    starship init fish | source
+  end
 end
