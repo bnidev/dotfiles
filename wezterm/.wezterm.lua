@@ -2,29 +2,26 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 config = {
+  -- General
   automatically_reload_config = true,
-  -- enable_tab_bar = false,
 
+  -- Window Settings
   window_close_confirmation = 'NeverPrompt',
-  window_decorations = 'RESIZE',
+  window_decorations = 'INTEGRATED_BUTTONS',
 
-  -- window_frame = {
-  --   border_left_width = '0.5cell',
-  --   border_right_width = '0.5cell',
-  --   border_bottom_height = '0.25cell',
-  --   border_top_height = '0.25cell',
-  -- },
   window_frame = {
     inactive_titlebar_bg = "none",
     active_titlebar_bg = "none",
   },
-  -- Styling
+
+  -- Theme & Font Settings
   -- color_scheme = 'Aci (Gogh)',
   -- color_scheme = 'MaterialOcean',
   -- color_scheme = 'Ef-Deuteranopia-Dark',
   color_scheme = 'Ef-Maris-Dark',
   font = wezterm.font 'FiraCode Nerd Font',
 
+  -- Key Mappings
   keys = {
     {
       key = 'o',
@@ -33,7 +30,8 @@ config = {
       ,
     }
   },
-  -- use WSL while on Windows
+
+  -- define which WSL distribution to use (only needed for Windows)
   default_domain = "WSL:Ubuntu"
 }
 
