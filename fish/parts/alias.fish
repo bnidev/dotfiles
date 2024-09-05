@@ -39,6 +39,12 @@ abbr df 'df -P -kHl --exclude-type=tmpfs --exclude-type=devtmpfs'
 abbr globalip "dig +short myip.opendns.com @resolver1.opendns.com"
 abbr localip 'ip -o route get to 8.8.8.8 | sed -n "s/.*src \([0-9.]\+\).*/\1/p"'
 
+# replicate pbcopy from macos
+alias pbcopy 'xclip -selection clipboard'
+alias pbpaste 'xclip -selection clipboard -o'
+abbr pc 'pbcopy'
+abbr pp 'pbpaste'
+
 # ls
 if type -q eza
   set TREE_IGNORE 'cache|log|logs|node_modules|vendor|.git'
