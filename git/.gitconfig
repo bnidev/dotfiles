@@ -3,6 +3,8 @@
   name = Benjamin Diener
 [github]
   user = bnidev
+[push]
+  autoSetupRemote = true
 [alias]
   co = checkout
   st = status -sb
