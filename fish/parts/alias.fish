@@ -19,6 +19,7 @@ abbr gd 'git diff'
 abbr gs 'git status'
 abbr gp 'git push'
 abbr gpl 'git pull'
+abbr lg 'lazygit'
 
 # shell
 abbr h 'history'
