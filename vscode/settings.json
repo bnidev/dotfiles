@@ -43,7 +43,8 @@
     "<C-v>": false,
     "<C-a>": false,
     "<C-o>": false,
-    "<C-f>": false
+    "<C-f>": false,
+    "<C-p": false
   },
   "vim.normalModeKeyBindingsNonRecursive": [
     {
