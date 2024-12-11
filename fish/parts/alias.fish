@@ -10,6 +10,7 @@ abbr dcs 'docker compose stop'
 abbr dck 'docker compose kill'
 abbr dcr 'docker compose restart'
 abbr dcp 'docker compose pull'
+abbr ldr 'lazydocker'
 
 # git
 abbr g 'git'
