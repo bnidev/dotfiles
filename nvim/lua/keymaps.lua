@@ -12,3 +12,6 @@ vim.keymap.set("n", "<leader>c", ":bd<CR>")
 -- move lines
 vim.keymap.set({"n", "v"}, "<A-j>", ":m '>+1<CR>gv=gv")
 vim.keymap.set({"n", "v"}, "<A-k>", ":m '<-2<CR>gv=gv")
+
+-- rename
+vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)

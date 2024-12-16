@@ -2,6 +2,6 @@ return {
 	"smjonas/inc-rename.nvim",
 	config = function()
 		require("inc_rename").setup()
-    vim.keymap.set("n", "<leader>rn", ":IncRename ")
+    vim.keymap.set("n", "<leader>rna", ":IncRename ")
 	end,
 }
