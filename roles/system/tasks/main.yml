@@ -1,0 +1,9 @@
+---
+- name: Install
+  ansible.builtin.package:
+    name:
+      - zip
+      - jq
+      - btop
+    state: latest
+  become: true

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+CONFIG_DIR="$HOME/.config/dotfiles"
+DOTFILES_DIR="$HOME/.dotfiles"
+SSH_DIR="$HOME/.ssh"
+
+if ! [ -x "$(command -v ansible)" ]; then
+ echo "Install Ansible"
+ # Add PPA only if it is not already present
+ if ! grep -r "ansible" /etc/apt/sources.list.d/; then
+    echo "PPA not present, adding PPA"
+    sudo add-apt-repository ppa:ansible/ansible
+    sudo apt update
+ else
+    echo "PPA already exists, install"
+ fi
+
+ sudo apt install ansible -y
+
+else
+  echo "Ansible is already installed... skipping"
+fi
+
+if ! [[ -f "$SSH_DIR/authorized_keys" ]]; then
+  echo "Generating SSH keys"
+  mkdir -p $SSH_DIR
+  chmod 700 $SSH_DIR
+  ssh-keygen -b 4096 -t rsa -f $SSH_DIR/id_rsa -N '' -C $USER@$HOSTNAME
+  cat $SSH_DIR/id_rsa.pub >> $SSH_DIR/authorized_keys
+else
+  echo "SSH keys already exist... skipping"
+fi
+
+echo "Run Ansible playbook"
+ansible-playbook --diff --ask-become-pass -i "$DOTFILES_DIR/hosts" --extra-vars "@$CONFIG_DIR/config.yml" "$DOTFILES_DIR/main.yml" "$@"

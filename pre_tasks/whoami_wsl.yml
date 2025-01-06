@@ -1,0 +1,37 @@
+---
+- name: Detect Windows Current User
+  ansible.builtin.shell:
+    cmd: $env:UserName
+  register: windows_user
+  changed_when: false
+  failed_when: windows_user.rc != 0
+  args:
+    executable: powershell.exe
+
+- name: Register Windows Current User
+  ansible.builtin.set_fact:
+    wsl_host_user: "{{ windows_user.stdout }}"
+  when: host_user is not defined
+
+- name: DEBUG
+  ansible.builtin.debug:
+    msg: "wsl_host_user: {{ wsl_host_user }}"
+
+- name: Get user folder of current Windows user
+  ansible.builtin.shell:
+    cmd: Split-Path $env:USERPROFILE -Leaf
+  register: windows_user_folder
+  changed_when: false
+  failed_when: windows_user_folder.rc != 0
+  args:
+    executable: powershell.exe
+  when: windows_user.rc == 0
+
+- name: Register Windows Current User Folder
+  ansible.builtin.set_fact:
+    wsl_host_user_folder: "{{ windows_user_folder.stdout }}"
+  when: windows_user_folder.rc == 0
+
+- name: DEBUG
+  ansible.builtin.debug:
+    msg: "wsl_host_user_folder: {{ wsl_host_user_folder }}"

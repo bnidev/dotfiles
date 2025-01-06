@@ -1,0 +1,20 @@
+default_roles:
+  - system
+  - bat
+  - docker
+  - eza
+  - fd
+  - fish
+  - fonts
+  - fzf
+  - git
+  - lazygit
+  - neovim
+  - nvm
+  - obsidian
+  - ripgrep
+  - sshfs
+  - sshs
+  - starship
+  - wezterm
+  - wireguard

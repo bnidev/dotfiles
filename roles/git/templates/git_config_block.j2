@@ -1,0 +1,29 @@
+# Set Git credentials dynamically
+function set_git_credentials --on-variable PWD --description 'Set local git credentials'
+  if git status &>/dev/null
+
+    # Get the git remote url
+    set git_url (git remote get-url origin)
+
+    # Get the current git user.email from git config
+    set current_git_email (git config --get user.email)
+
+    set git_email ""
+
+{% for platform in git.platforms %}
+    if echo $git_url | grep -q "{{ platform.url }}"
+
+      # If the current git user.email doesn't match the platform email, set the git_email variable
+      if test "$current_git_email" != "{{ platform.email }}"
+        set git_email "{{ platform.email }}"
+        echo "{{ platform.name }} detected, setting local git email to $git_email"
+      end
+
+    end
+{% endfor %}
+
+    if test -n "$git_email"
+      git config --local user.email $git_email
+    end
+  end
+end

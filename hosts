@@ -1,0 +1,5 @@
+[work]
+localhost ansible_connection=local
+
+[personal]
+localhost ansible_connection=local
