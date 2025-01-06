@@ -19,10 +19,11 @@ return {
 				html = { "prettier" },
 				css = { "prettier" },
 				scss = { "prettier" },
-        markdown = { "prettier" },
-        php = { "prettier" },
-        vue = { "prettier" },
+				markdown = { "prettier" },
+				php = { "prettier" },
+				vue = { "prettier" },
 				python = { "isort", "black" },
+				go = { "goimports", "gofumpt" },
 			},
 		})
 		vim.keymap.set("n", "<leader>ff", function()

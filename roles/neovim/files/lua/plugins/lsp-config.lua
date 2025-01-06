@@ -9,7 +9,17 @@ return {
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "lua_ls", "ts_ls", "html", "tailwindcss", "pyright", "volar", "cssls", "yamlls" },
+				ensure_installed = {
+					"lua_ls",
+					"ts_ls",
+					"html",
+					"tailwindcss",
+					"pyright",
+					"volar",
+					"cssls",
+					"yamlls",
+					"gopls",
+				},
 			})
 		end,
 	},
@@ -18,6 +28,8 @@ return {
 		config = function()
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 			local lspconfig = require("lspconfig")
+			local util = require("lspconfig/util")
+
 			lspconfig.ts_ls.setup({
 				capabilities = capabilities,
 			})
@@ -40,29 +52,44 @@ return {
 			lspconfig.pyright.setup({
 				capabilities = capabilities,
 			})
-      lspconfig.yamlls.setup({
-        capabilities = capabilities,
-        settings = {
-          yaml = {
-            schemaStore = {
-              url = "https://www.schemastore.org/api/json/catalog.json",
-              enable = true,
-            }
-          }
-        },
-      })
-      lspconfig.jsonls.setup({
-        capabilities = capabilities,
-      })
+			lspconfig.yamlls.setup({
+				capabilities = capabilities,
+				settings = {
+					yaml = {
+						schemaStore = {
+							url = "https://www.schemastore.org/api/json/catalog.json",
+							enable = true,
+						},
+					},
+				},
+			})
+			lspconfig.jsonls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.gopls.setup({
+				capabilities = capabilities,
+				cmd = { "gopls" },
+				filetypes = { "go", "gomod", "gowork", "gotmpl" },
+				root_dir = util.root_pattern("go.work", "go.mod", ".git"),
+				settings = {
+					gopls = {
+						completeUnimported = true,
+						usePlaceholders = true,
+						analyses = {
+							unusedparams = true,
+						},
+					},
+				},
+			})
 
-      vim.keymap.set("n", "K",vim.lsp.buf.hover, {})
-      vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
-      vim.keymap.set("n", "<leader>gr", require("telescope.builtin").lsp_references, {})
-      vim.keymap.set("n", "<leader>ds", require("telescope.builtin").lsp_document_symbols, {})
-      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
-      vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {})
-      vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {})
-      vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {})
+			vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
+			vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
+			vim.keymap.set("n", "<leader>gr", require("telescope.builtin").lsp_references, {})
+			vim.keymap.set("n", "<leader>ds", require("telescope.builtin").lsp_document_symbols, {})
+			vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
+			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, {})
+			vim.keymap.set("n", "]d", vim.diagnostic.goto_next, {})
+			vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, {})
 		end,
 	},
 }
