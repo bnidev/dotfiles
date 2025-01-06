@@ -23,7 +23,7 @@ else
   echo "Ansible is already installed... skipping"
 fi
 
-if ! [[ -f "$SSH_DIR/authorized_keys" ]]; then
+if ! [[ -f "$SSH_DIR/id_rsa" ]]; then
   echo "Generating SSH keys"
   mkdir -p $SSH_DIR
   chmod 700 $SSH_DIR
