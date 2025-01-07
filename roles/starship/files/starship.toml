@@ -8,6 +8,7 @@ add_newline = true
 
 format = """
 $directory\
+$hg_branch\
 $git_branch\
 $git_state\
 $git_status\
@@ -51,6 +52,9 @@ format = '\([$state( $progress_current/$progress_total)]($style)\) '
 style = "bright-black"
 
 [git_metrics]
+disabled = false
+
+[hg_branch]
 disabled = false
 
 [fill]
