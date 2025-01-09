@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# color codes
+NC='\033[0m'
+RED='\033[00;31m'
+GREEN='\033[00;32m'
+CYAN='\033[00;36m'
+SEA="\\033[38;5;49m"
+LRED='\033[01;31m'
+LGREEN='\033[01;32m'
+LBLUE='\033[01;34m'
+
+#emoji codes
+X_MARK="${RED}✘${NC}"
+ARROW="${SEA}\xE2\x96\xB6${NC}"
+BOOK="${RED}\xF0\x9F\x93\x8B${NC}"
+RIGHT_ANGLE="\xE2\x88\x9F"
+
 set -e
 
 CONFIG_DIR="$HOME/.config/dotfiles"
@@ -7,31 +23,47 @@ DOTFILES_DIR="$HOME/.dotfiles"
 SSH_DIR="$HOME/.ssh"
 
 if ! [ -x "$(command -v ansible)" ]; then
- echo "Install Ansible"
- # Add PPA only if it is not already present
- if ! grep -r "ansible" /etc/apt/sources.list.d/; then
-    echo "PPA not present, adding PPA"
-    sudo add-apt-repository ppa:ansible/ansible
-    sudo apt update
- else
-    echo "PPA already exists, install"
- fi
+  printf "${X_MARK}${LRED} Ansible is not installed${NC}\n"
 
- sudo apt install ansible -y
+  # Add PPA only if it is not already present
+  if ! grep -r "ansible" /etc/apt/sources.list.d/; then
+    printf "${RIGHT_ANGLE} Adding Ansible PPA\n"
+    sudo add-apt-repository ppa:ansible/ansible -y
+    sudo apt update
+  else
+    printf "${GREEN}✓ Ansible PPA is already added... ${LGREEN}skipping${NC}\n"
+  fi
+
+  printf "${RIGHT_ANGLE} Installing Ansible\n"
+  sudo apt install ansible -y
+
+  printf "${LGREEN}✓ Done ${NC}\n"
 
 else
-  echo "Ansible is already installed... skipping"
+  printf "${GREEN}✓ Ansible is already installed... ${LGREEN}skipping${NC}\n"
 fi
 
 if ! [[ -f "$SSH_DIR/id_rsa" ]]; then
-  echo "Generating SSH keys"
+  printf "${X_MARK}${LRED} SSH keys missing in '$SSH_DIR/id_rsa'${NC}\n"
+  printf "${RIGHT_ANGLE} Generating SSH keys in '$SSH_DIR'\n"
   mkdir -p $SSH_DIR
   chmod 700 $SSH_DIR
   ssh-keygen -b 4096 -t rsa -f $SSH_DIR/id_rsa -N '' -C $USER@$HOSTNAME
   cat $SSH_DIR/id_rsa.pub >> $SSH_DIR/authorized_keys
+  printf "${LGREEN}✓ Done ${NC}\n"
 else
-  echo "SSH keys already exist... skipping"
+  printf "${GREEN}✓ SSH keys already exist... ${LGREEN}skipping${NC}\n"
 fi
 
-echo "Run Ansible playbook"
+if ! [[ -f "$CONFIG_DIR/config.yml" ]]; then
+  printf "${X_MARK}${LRED} Config file missing in '$CONFIG_DIR/config.yml'${NC}\n"
+  printf "${RIGHT_ANGLE} Copying template config file to '$CONFIG_DIR/config.template.yml'\n"
+  cp $DOTFILES_DIR/templates/config.template.yml $CONFIG_DIR/config.template.yml
+  printf "${LGREEN}✓ Done ${NC}\n"
+  printf "${ARROW}${SEA} Please edit the config file and rename it to 'config.yml' so the playbook can run! ${NC}\n"
+  # exit 1
+else
+  printf "${GREEN}✓ Config file exists... ${LGREEN}skipping${NC}\n"
+fi
+printf "${BOOK}${LBLUE}Running Ansible Playbook... \n${NC}"
 ansible-playbook --diff --ask-become-pass -i "$DOTFILES_DIR/hosts" --extra-vars "@$CONFIG_DIR/config.yml" "$DOTFILES_DIR/main.yml" "$@"
