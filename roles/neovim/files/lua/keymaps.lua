@@ -26,3 +26,6 @@ vim.keymap.set("n", "<leader>mp", ":MarkdownPreviewToggle<CR>", { desc = "Markdo
 
 -- Todo Comments
 vim.keymap.set("n", "<leader>td", ":TodoTelescope<CR>", { desc = "Find Todo Comments" })
+
+-- Switch
+vim.keymap.set("n", "<leader>s", ":Switch<CR>", { desc = "Switch" })
