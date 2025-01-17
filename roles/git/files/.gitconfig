@@ -10,7 +10,7 @@
   user = config user.name
   email = config user.email
   fresh = !git fetch --all --prune
-  purge = !git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
+  purge = !git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D
   wip = "!f() { git commit --no-verify -m \"wip: $*\"; }; f"
 
 [color "branch"]
