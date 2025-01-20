@@ -2,12 +2,16 @@
 
 # Default values for flags
 use_date_prefix=0  # Flag to indicate whether to use the date prefix
+use_week_prefix=0  # Flag to indicate whether to use the week prefix
 
 # Parse flags using getopts
-while getopts ":m" opt; do
+while getopts ":mw" opt; do
   case $opt in
     m)
       use_date_prefix=1  # Set flag if -m is provided
+      ;;
+    w)
+      use_week_prefix=1  # Set flag if -w is provided
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -38,6 +42,9 @@ file_name=$(echo "$1" | tr ' ' '-')
 if [ $use_date_prefix -eq 1 ]; then
   # Use date prefix if -m is set
   formatted_file_name=$(date "+%Y-%m-%d")_${file_name}.md
+elif [ $use_week_prefix -eq 1 ]; then
+  # Use week prefix if -w is set
+  formatted_file_name=$(date "+%Y-W%V")_${file_name}.md
 else
   # Default formatting if -m is not set
   formatted_file_name=${file_name}.md

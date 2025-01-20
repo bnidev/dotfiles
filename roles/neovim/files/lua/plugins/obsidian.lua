@@ -27,6 +27,23 @@ return {
       subdir = "Templates",
       date_format = "%Y-%m-%d",
       time_format = "%H:%M:%S",
+      substitutions = {
+        year = function()
+          return os.date("%Y")
+        end,
+        month = function()
+          return os.date("%m")
+        end,
+        day = function()
+          return os.date("%d")
+        end,
+        week = function()
+          return os.date("%V")
+        end,
+        weekday = function()
+          return os.date("%A")
+        end,
+      }
     },
 
 
