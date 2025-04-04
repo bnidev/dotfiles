@@ -1,0 +1,84 @@
+---
+- name: Install WezTerm
+  when: not ansible_host_environment_is_wsl
+  block:
+    - name: Ensure the gpg package is installed
+      apt:
+        name: gpg
+        state: present
+        update_cache: yes
+      become: true
+
+    - name: Create the keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      become: true
+
+    - name: Download GPG key for WezTerm repository
+      get_url:
+        url: https://apt.fury.io/wez/gpg.key
+        dest: /etc/apt/keyrings/wezterm-fury.gpg_armored
+        mode: '0644'
+      become: true
+
+    - name: De-Armor WezTerm GPG key
+      ansible.builtin.shell: gpg --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg /etc/apt/keyrings/wezterm-fury.gpg_armored
+      args:
+        creates: /etc/apt/keyrings/wezterm-fury.gpg
+      become: true
+
+    - name: Add the WezTerm repository to the sources list
+      lineinfile:
+        path: /etc/apt/sources.list.d/wezterm.list
+        line: "deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *"
+        create: yes
+      become: true
+
+    - name: Ensure the keyring and sources list file have correct permissions
+      file:
+        path: "{{ item }}"
+        mode: '0644'
+      with_items:
+        - /etc/apt/keyrings/wezterm-fury.gpg
+        - /etc/apt/sources.list.d/wezterm.list
+      become: true
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install WezTerm
+      apt:
+        name: wezterm
+        state: present
+      become: true
+
+- name: Setup WezTerm config for WSL
+  when: ansible_host_environment_is_wsl
+  block:
+    - name: Copy WezTerm config
+      ansible.builtin.copy:
+        src: .wezterm.lua
+        dest: /mnt/c/Users/{{ wsl_host_user_folder }}/.wezterm.lua
+        # owner: "{{ ansible_env['USER'] }}"
+        # group: "{{ ansible_env['USER'] }}"
+        mode: '0644'
+    - name: Add default domain
+      ansible.builtin.blockinfile:
+        path: /mnt/c/Users/{{ wsl_host_user_folder }}/.wezterm.lua
+        append_newline: true
+        block: |
+          -- define which WSL version to use on Windows
+          config.default_domain = "WSL:Ubuntu-24.04"
+        marker: "-- {mark} ANSIBLE BLOCK: {{ role_name }} | Add default domain"
+        insertbefore: "return config"
+
+- name: "{{ role_name }} | Copy WezTerm config"
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.wezterm.lua"
+    src: ".wezterm.lua"
+    mode: "0644"
+  when: not ansible_host_environment_is_wsl

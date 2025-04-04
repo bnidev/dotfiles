@@ -1,0 +1,46 @@
+---
+- name: "Git | {{ ansible_distribution }} | Install git"
+  ansible.builtin.apt:
+    name:
+      - git
+    state: present
+  become: true
+
+# - name: "{{ role_name }} | Copy Git config"
+#   ansible.builtin.copy:
+#     dest: "{{ ansible_user_dir }}/.gitconfig"
+#     src: ".gitconfig"
+#     mode: "0644"
+
+- name: "Git | Set user.name"
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: "{{ git.default.name }}"
+  when: git.default.name is defined
+
+- name: "Git | Set user.email"
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: "{{ git.default.email }}"
+  no_log: true
+  when: git.default.email is defined
+
+- name: "Git | Include default config"
+  blockinfile:
+    prepend_newline: true
+    path: "{{ lookup('env', 'HOME') }}/.gitconfig"
+    block: |
+      [include]
+      path = "{{ role_path }}/files/.gitconfig"
+    marker: "# {mark} ANSIBLE BLOCK: {{ role_name }} | Include default config"
+
+- name: Create Git configuration function in fish config
+  blockinfile:
+    prepend_newline: true
+    path: "{{ lookup('env', 'HOME') }}/.config/fish/parts/git.fish"
+    block: "{{ lookup('template', role_path + '/templates/git_config_block.j2') }}"
+    marker: "# {mark} ANSIBLE BLOCK: {{ role_name }} | Create Git configuration function in fish config"
+    create: yes
+    state: present

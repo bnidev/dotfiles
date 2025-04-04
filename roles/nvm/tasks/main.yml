@@ -1,0 +1,38 @@
+- name: "Check if nvm.fish is installed"
+  shell: "grep 'jorgebucaran/nvm.fish' /home/{{ ansible_env['USER'] }}/.config/fish/fish_plugins"
+  register: grep_result
+  ignore_errors: true
+  changed_when: "'jorgebucaran/nvm.fish' not in grep_result.stdout"
+
+- name: "Install required Node versions"
+  when: grep_result.rc == 0
+  block:
+    - name: "Install required Node versions"
+      shell: fish -c "nvm install {{ item }}"
+      register: install_result
+      with_items:
+        - 'lts'
+      changed_when: "'Installing' is in install_result.stdout"
+
+    - name: Get the latest LTS version of Node.js
+      shell: fish -c "nvm list-remote lts | tail -n 1"
+      register: latest_lts_version
+      changed_when: false
+      failed_when: >
+        latest_lts_version.rc != 0 or
+        not latest_lts_version.stdout|regex_search('\w+\.\w+\.\w+')
+
+    - name: Get current Node version
+      shell: fish -c "nvm current"
+      register: current_node_version
+      changed_when: false
+      failed_when: false
+
+    - name: "Use latest LTS version of Node.js"
+      shell: fish -c "nvm use lts"
+      when: current_node_version.stdout not in latest_lts_version.stdout
+
+    - name: "Set default Node version"
+      shell: fish -c "set --universal nvm_default_version lts"
+      when: current_node_version.stdout not in latest_lts_version.stdout
+

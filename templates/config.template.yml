@@ -1,0 +1,45 @@
+---
+# -- This is a template for your personal information and settings.
+# -- The file should be placed here: ~/.config/dotfiles/config.yml
+# -- It then gets automatically passed as "extra-vars" into the Ansible playbook in bin/dotfiles. Thus all definied variables are directly available in any task.
+
+# Obsidian Vaults Configuration
+# -- The Obsidian task will create a symlink to the vaults defined here and export a variable called "OBSIDIAN_VAULT_DIR" based on the defined default vault so it can be used by any script to handle Obsidian files.
+obsidian:
+  default_vault: personal # name of the vault that should be used by default
+  vaults:
+    - name: personal
+      path: # <path-to-your-obsidian-vault>
+    - name: work
+      path: # <path-to-your-obsidian-vault>
+
+# Git Configuration
+git:
+  # Default git user
+  # -- This information will be used to set the global git user and email.
+  default:
+    name: # name of the global git user
+    user: # username e.g. for GitHub
+    email: # email of the global git user
+  # Platform specific overrides
+  # -- This is optional incase you want to use different emails for different platforms.
+  platforms:
+    - name: Personal GitLab # this is just used for console prints
+      url: # <url-to-your-plattform> e.g. gitlab.personal.com
+      email: # <email-to-use-on-this-plattform> e.g. me@personal.com
+
+# User Environment Configuration
+# -- This is useful to configure different information based on the environment (work/personal, clients, projects, etc.)
+user_environment:
+  # -- Here are some examples:
+  work:
+    name: # full name
+    email: # email
+    user: # user name
+  project-a:
+    start_parameter:
+    target_dir:
+    source_dir:
+    node_version:
+
+# Feel free to add any other settings/variables here

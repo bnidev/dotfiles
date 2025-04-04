@@ -1,0 +1,38 @@
+- name: "Get the latest release tag from the GitHub repository"
+  uri:
+    url: "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+    method: GET
+    return_content: yes
+  register: latest_release
+
+- name: "Set the download URL for the FiraCode Nerd Font zip"
+  set_fact:
+    font_download_url: "{{ latest_release.json.assets | selectattr('name', 'search', 'FiraCode.zip') | map(attribute='browser_download_url') | first }}"
+
+- name: "Ensure the font download URL is found"
+  fail:
+    msg: "Could not find FiraCode Nerd Font in the release assets."
+  when: font_download_url is not defined
+
+- name: "Download the FiraCode Nerd Font zip file"
+  get_url:
+    url: "{{ font_download_url }}"
+    dest: "/tmp/FiraCode-Nerd-Font.zip"
+    mode: "0644"
+
+- name: "Unzip the font archive to the fonts directory"
+  unarchive:
+    src: "/tmp/FiraCode-Nerd-Font.zip"
+    dest: "/usr/share/fonts"
+    remote_src: yes
+  become: true
+
+- name: "Rebuild font cache"
+  command: fc-cache -fv
+  become: true
+
+- name: "Clean up the downloaded zip file"
+  file:
+    path: "/tmp/FiraCode-Nerd-Font.zip"
+    state: absent
+  become: true

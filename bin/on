@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Default values for flags
+use_date_prefix=0  # Flag to indicate whether to use the date prefix
+use_week_prefix=0  # Flag to indicate whether to use the week prefix
+
+# Parse flags using getopts
+while getopts ":mw" opt; do
+  case $opt in
+    m)
+      use_date_prefix=1  # Set flag if -m is provided
+      ;;
+    w)
+      use_week_prefix=1  # Set flag if -w is provided
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Shift arguments to remove flags and get the remaining argument (file name)
+shift $((OPTIND - 1))
+
+# Ensure a file name is provided
+if [ -z "$1" ]; then
+  echo "Error: A file name must be set, e.g. on \"the wonderful thing about tiggers\"."
+  exit 1
+fi
+
+# Ensure the OBSIDIAN_VAULT_DIR environment variable is set
+if [ -z "${OBSIDIAN_VAULT_DIR}" ]; then
+  echo "Error: The OBSIDIAN_VAULT_DIR environment variable must be set."
+  exit 1
+fi
+
+# Prepare the file name by replacing spaces with dashes
+file_name=$(echo "$1" | tr ' ' '-')
+
+# Determine the formatted file name based on the flag
+if [ $use_date_prefix -eq 1 ]; then
+  # Use date prefix if -m is set
+  formatted_file_name=$(date "+%Y-%m-%d")_${file_name}.md
+elif [ $use_week_prefix -eq 1 ]; then
+  # Use week prefix if -w is set
+  formatted_file_name=$(date "+%Y-W%V")_${file_name}.md
+else
+  # Default formatting if -m is not set
+  formatted_file_name=${file_name}.md
+fi
+
+# Create the file in the desired directory
+touch "${OBSIDIAN_VAULT_DIR}/0 Inbox/${formatted_file_name}"
+
+# Open the file with nvim
+nvim "${OBSIDIAN_VAULT_DIR}/0 Inbox/${formatted_file_name}"
+
