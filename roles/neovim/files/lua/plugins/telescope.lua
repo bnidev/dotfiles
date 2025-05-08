@@ -54,6 +54,27 @@ return {
 				})
 			end)
 
+      vim.keymap.set('n', '<leader>gh', function()
+        local file_path = vim.api.nvim_buf_get_name(0)
+        if file_path == '' then
+          vim.notify("No file open", vim.log.levels.WARN)
+          return
+        end
+
+        local handle = io.popen('git -C "' .. vim.fn.fnamemodify(file_path, ":h") .. '" rev-parse --show-toplevel 2>/dev/null')
+        local git_root = handle and handle:read("*l") or nil
+        if handle then handle:close() end
+
+        if not git_root or git_root == '' then
+          vim.notify("Not inside a Git repository", vim.log.levels.WARN)
+          return
+        end
+
+        builtin.git_bcommits({
+          cwd = git_root,
+        })
+      end, { desc = "Telescope Git file history (git_bcommits)" })
+
 			require("custom.telescope.multigrep").setup()
 		end,
 	},
