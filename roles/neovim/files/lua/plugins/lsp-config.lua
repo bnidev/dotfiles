@@ -19,6 +19,8 @@ return {
           "cssls",
           "yamlls",
           "gopls",
+          "dockerls",
+          "docker_compose_language_service",
         },
       })
     end,
