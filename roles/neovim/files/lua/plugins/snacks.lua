@@ -18,6 +18,11 @@ return {
     scroll = { enabled = false },
     statuscolumn = { enabled = true },
     words = { enabled = true },
+    picker = {
+      enabled = false,
+      hidden = true,
+      ignored = true,
+    },
   },
   keys = {
     {
@@ -41,6 +46,13 @@ return {
         Snacks.lazygit.log()
       end,
       desc = "Lazygit Log (cwd)",
+    },
+    {
+      "<C-n>",
+      function()
+        Snacks.explorer()
+      end,
+      desc = "Snacks Explorer",
     },
   },
 }
