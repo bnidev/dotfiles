@@ -54,5 +54,25 @@ return {
       end,
       desc = "Snacks Explorer",
     },
+    {
+      "<leader>km",
+      function()
+        Snacks.picker.keymaps()
+      end,
+      desc = "Snacks Keymaps",
+    },
+    {
+      "<leader>gbr",
+      function()
+        Snacks.picker.git_branches()
+      end,
+      desc = "Snacks Git Branches",
+    },
+    {
+      "<leader>vh",
+      function()
+        Snacks.picker.help()
+      end,
+    },
   },
 }
