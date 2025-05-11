@@ -29,3 +29,6 @@ vim.keymap.set("n", "<leader>td", ":TodoTelescope<CR>", { desc = "Find Todo Comm
 
 -- Switch
 vim.keymap.set("n", "<leader>s", ":Switch<CR>", { desc = "Switch" })
+
+-- GitHub Copilot
+vim.keymap.set({ "n", "v" }, "<leader>gc", ":CopilotChat<CR>", { desc = "GitHub Copilot" })
