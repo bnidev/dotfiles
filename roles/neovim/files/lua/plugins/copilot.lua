@@ -27,6 +27,10 @@ return {
             dismiss = "<C-e>",
           },
         },
+        filetypes = {
+          yaml = true,
+          markdown = true
+        },
       })
     end,
   },
