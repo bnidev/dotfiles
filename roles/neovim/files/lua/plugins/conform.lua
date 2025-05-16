@@ -29,7 +29,7 @@ return {
 		vim.keymap.set("n", "<leader>ff", function()
 			conform.format({
 				lsp_fallback = true,
-				async = false,
+				async = true,
 				timeout_ms = 500,
 			})
 		end, { desc = "Format file or range (visual mode)" })
