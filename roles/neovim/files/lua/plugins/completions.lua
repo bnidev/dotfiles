@@ -68,6 +68,15 @@ return {
         }, {
           { name = "buffer" },
         }),
+        formatting = {
+        format = function(entry, vim_item)
+          local formatted = require("nvim-highlight-colors").format(entry, vim_item)
+          local kinds = require("cmp.types").lsp.CompletionItemKind
+          local kind_name = kinds[entry:get_kind()] or ""
+          formatted.menu_hl_group = "CmpItemKind" .. kind_name
+          return formatted
+        end,
+        },
       })
     end,
   },
