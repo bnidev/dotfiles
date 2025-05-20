@@ -19,6 +19,7 @@ return {
           "volar",
           "cssls",
           "yamlls",
+          "jsonls",
           "gopls",
           "dockerls",
           "docker_compose_language_service",
