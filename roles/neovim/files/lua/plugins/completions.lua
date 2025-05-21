@@ -19,6 +19,14 @@ return {
       local cmp = require("cmp")
       require("luasnip.loaders.from_vscode").lazy_load()
 
+      -- Load custom snippets
+      local snippet_path = vim.fn.stdpath("config") .. "/lua/custom/luasnip"
+      local luasnip = require("luasnip")
+      require("luasnip.loaders.from_lua").lazy_load({ paths = snippet_path })
+
+      luasnip.filetype_extend("typescript", { "javascript" })
+      luasnip.filetype_extend("typescriptreact", { "javascript", "typescript" })
+
       -- `/` cmdline setup.
       cmp.setup.cmdline("/", {
         mapping = cmp.mapping.preset.cmdline(),

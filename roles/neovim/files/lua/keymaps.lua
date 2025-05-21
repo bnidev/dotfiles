@@ -32,3 +32,7 @@ vim.keymap.set("n", "<leader>s", ":Switch<CR>", { desc = "Switch" })
 
 -- GitHub Copilot
 vim.keymap.set({ "n", "v" }, "<leader>gc", ":CopilotChat<CR>", { desc = "GitHub Copilot" })
+
+-- Luasnip
+vim.keymap.set("i", "<A-j>", function() require('luasnip').jump(1) end, { desc = "Jump to next snippet node" })
+vim.keymap.set("i", "<A-k>", function() require('luasnip').jump(-1) end, { desc = "Jump to previous snippet node" })
