@@ -55,6 +55,12 @@ return {
         require("telescope.builtin").lsp_document_symbols,
         { desc = "Show documen symbols" }
       )
+      vim.keymap.set(
+        "n",
+          "<leader>ws",
+          require("telescope.builtin").lsp_dynamic_workspace_symbols,
+          { desc = "Show workspace symbols" }
+      )
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Show code actions" })
       vim.keymap.set("n", "[d", function()
         vim.diagnostic.jump({count=1})
