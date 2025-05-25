@@ -1,0 +1,13 @@
+---
+- name: Check if cargo is installed
+  ansible.builtin.command: which cargo
+  register: cargo_check
+  changed_when: false
+  failed_when: false
+
+- name: tokei | {{ ansible_distribution }} | Install tokei
+  ansible.builtin.command: cargo install tokei
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/tokei"
+  become: true
+  when: cargo_check.rc == 0
