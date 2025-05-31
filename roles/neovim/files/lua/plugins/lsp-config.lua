@@ -34,7 +34,8 @@ return {
         ensure_installed = {
           "prettier",
           "stylua",
-          { "eslint_d", version = "13.1.2" }
+          { "eslint_d", version = "13.1.2" },
+          "biome"
         },
       })
     end,
