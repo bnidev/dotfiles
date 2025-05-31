@@ -82,5 +82,29 @@ return {
       })
       vim.notify("Formatting triggered for: " .. shortname, vim.log.levels.INFO)
     end, { desc = "Format file or range (visual mode)" })
+
+    -- Autoformat toggle state
+    local format_on_save_enabled = false
+
+    local format_on_save_augroup = vim.api.nvim_create_augroup("FormatOnSave", { clear = true })
+
+    local function format_on_save_toggle()
+      format_on_save_enabled = not format_on_save_enabled
+      if format_on_save_enabled then
+        vim.api.nvim_create_autocmd("BufWritePre", {
+          group = format_on_save_augroup,
+          callback = function()
+            conform.format({ async = false })
+          end,
+        })
+        vim.notify("Autoformat on save: ENABLED", vim.log.levels.INFO)
+      else
+        vim.api.nvim_clear_autocmds({ group = format_on_save_augroup })
+        vim.notify("Autoformat on save: DISABLED", vim.log.levels.WARN)
+      end
+    end
+
+    -- Keymap to toggle autoformat on save
+    vim.keymap.set("n", "<leader>tf", format_on_save_toggle, { desc = "Toggle autoformat on save" })
   end,
 }
