@@ -12,6 +12,7 @@ default_roles:
   - neovim
   - nvm
   - obsidian
+  - posting
   - ripgrep
   - sshfs
   - sshs

@@ -1,0 +1,35 @@
+- name: Check if 'uv' is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/uv"
+  register: uv_binary
+
+- name: Download the UV install script
+  ansible.builtin.get_url:
+    url: https://astral.sh/uv/install.sh
+    dest: /tmp/uv-install.sh
+    mode: '0755'
+  when: not uv_binary.stat.exists
+
+- name: Run the UV install script
+  ansible.builtin.shell: /tmp/uv-install.sh
+  args:
+    executable: /bin/bash
+  when: not uv_binary.stat.exists
+
+- name: Check if 'posting' tool is installed
+  ansible.builtin.shell: "{{ ansible_env.HOME }}/.local/bin/uv tool list"
+  register: uv_tool_list
+  changed_when: false
+  failed_when: false
+  when: uv_binary.stat.exists
+
+- name: Install 'posting' tool using uv
+  ansible.builtin.shell: "{{ ansible_env.HOME }}/.local/bin/uv tool install --python 3.13 posting"
+  when:
+    - uv_binary.stat.exists
+    - "'posting' not in uv_tool_list.stdout"
+
+- name: Add ~/.local/bin to Fish universal PATH
+  ansible.builtin.shell: fish -c 'set -Ux PATH $HOME/.local/bin $PATH'
+  args:
+    executable: /bin/bash
