@@ -19,6 +19,11 @@
     tags:
       - always
 
+  - name: Detect User Shell
+    ansible.builtin.import_tasks: pre_tasks/detect_shell.yml
+    tags:
+      - always
+
   tasks:
     - name: Set roles dynamically
       ansible.builtin.set_fact:

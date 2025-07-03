@@ -1,0 +1,13 @@
+---
+- name: Get user's default shell
+  ansible.builtin.command: getent passwd "{{ ansible_env['USER']}}"
+  register: passwd_entry
+  changed_when: false
+
+- name: Set global user_shell fact
+  ansible.builtin.set_fact:
+    user_shell: "{{ passwd_entry.stdout.split(':')[-1] | trim }}"
+
+- name: DEBUG
+  ansible.builtin.debug:
+    msg: "user_shell: {{ user_shell }}"
