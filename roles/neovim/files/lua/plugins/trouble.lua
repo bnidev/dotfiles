@@ -1,7 +1,20 @@
 return {
   "folke/trouble.nvim",
   opts = {
-    focus = true
+    focus = true,
+    preview = {
+      type = "float",
+      relative = "editor",
+      title = "Trouble Preview",
+      title_pos = "center",
+      border = "rounded",
+      size = { width = 0.8, height = 0.5 },
+      position = { 0.2, 0.5 },
+      zindex = 200,
+    },
+    win = {
+      size = 0.25,
+    },
   },
   cmd = "Trouble",
   keys = {
