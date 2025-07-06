@@ -50,6 +50,12 @@ return {
     opts = {
       -- See Configuration section for options
     },
-    -- See Commands section for default commands if you want to lazy load on them
+    config = function()
+      require("CopilotChat").setup()
+
+      -- Custom functions
+      require("custom.copilot.review").setup()
+      require("custom.copilot.commit").setup()
+    end,
   },
 }
