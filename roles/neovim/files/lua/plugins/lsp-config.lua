@@ -63,13 +63,13 @@ return {
           { desc = "Show workspace symbols" }
       )
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Show code actions" })
-      vim.keymap.set("n", "[d", function()
-        vim.diagnostic.jump({count=1})
-      end, { desc = "Previous diagnostic" })
-      vim.keymap.set("n", "]d", function()
-        vim.diagnostic.jump({count=-1})
+      vim.keymap.set("n", "<A-n>", function()
+        vim.diagnostic.jump({ count = 1 })
       end, { desc = "Next diagnostic" })
-      vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Open diagnostic" })
+      vim.keymap.set("n", "<A-p>", function()
+        vim.diagnostic.jump({ count = -1 })
+      end, { desc = "Previous diagnostic" })
+      vim.keymap.set("n", "<leader>do", vim.diagnostic.open_float, { desc = "Open diagnostic" })
 
       -- Define sign icons for each severity
       local signs = {
