@@ -8,6 +8,7 @@ default_roles:
   - fonts
   - fzf
   - git
+  - lazydocker
   - lazygit
   - neovim
   - nvm
