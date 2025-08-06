@@ -36,3 +36,7 @@ vim.keymap.set({ "n", "v" }, "<leader>gc", ":CopilotChat<CR>", { desc = "GitHub 
 -- Luasnip
 vim.keymap.set("i", "<A-j>", function() require('luasnip').jump(1) end, { desc = "Jump to next snippet node" })
 vim.keymap.set("i", "<A-k>", function() require('luasnip').jump(-1) end, { desc = "Jump to previous snippet node" })
+
+-- Overseer
+vim.keymap.set("n", "<leader>ot", ":OverseerToggle<CR>", { desc = "Toggle Overseer" })
+vim.keymap.set("n", "<leader>or", ":OverseerRun<CR>", { desc = "Run Overseer Task" })
