@@ -35,11 +35,12 @@ local function review(diff_cmd, prompt_path, no_changes_msg)
 end
 
 function M.CopilotReviewUnstaged()
-  review("git diff", "~/.config/nvim/copilot-prompts/review-unstaged-files.md", "No unstaged changes to review.")
+  review("git diff -- . ':(exclude)package-lock.json'", "~/.config/nvim/copilot-prompts/review-unstaged-files.md", "No unstaged changes to review.")
+
 end
 
 function M.CopilotReviewStaged()
-  review("git diff --cached", "~/.config/nvim/copilot-prompts/review-staged-files.md", "No staged changes to review.")
+  review("git diff --cached -- . ':(exclude)package-lock.json'", "~/.config/nvim/copilot-prompts/review-staged-files.md", "No staged changes to review.")
 end
 
 function M.CopilotReviewMerge()
@@ -52,7 +53,7 @@ function M.CopilotReviewMerge()
   end
 
   review(
-    string.format("git diff origin/%s...HEAD", default_branch),
+    string.format("git diff origin/%s...HEAD -- . ':(exclude)package-lock.json'", default_branch),
     "~/.config/nvim/copilot-prompts/review-merge-request.md",
     "No changes to review in merge request."
   )
