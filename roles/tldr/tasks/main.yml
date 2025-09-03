@@ -1,0 +1,96 @@
+---
+- name: "tldr | Download Latest Version JSON"
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/tldr-pages/tlrc/releases/latest
+  register: tlrc_latest_version_json
+  changed_when: false
+
+- name: "tldr | Registering tlrc Latest Release"
+  ansible.builtin.set_fact:
+    tlrc_latest_release: "{{ tlrc_latest_version_json.json.tag_name }}"
+
+- name: "tldr | Getting version information"
+  ansible.builtin.shell:
+    cmd: tldr --version | grep -oP '\d+\.\d+\.\d+' | sed 's/^/v/'
+  args:
+    executable: /bin/bash
+  register: current_tlrc_version
+  changed_when: false
+  failed_when: false
+
+- name: "tldr | Show current_tlrc_version debug"
+  ansible.builtin.debug:
+    var: current_tlrc_version.stdout
+
+- name: "tldr | Show tlrc_latest_release debug"
+  ansible.builtin.debug:
+    var: tlrc_latest_release
+
+- name: "tldr | Install"
+  when: tlrc_latest_release not in current_tlrc_version.stdout | default('')
+  block:
+
+    - name: "tldr | Define tlrc_file"
+      ansible.builtin.set_fact:
+        tlrc_file: "tlrc-{{ tlrc_latest_release }}-x86_64-unknown-linux-gnu"
+
+    - name: "tldr | Ensure clean download destination"
+      ansible.builtin.file:
+        path: "/tmp/{{ tlrc_file }}.tar.gz"
+        state: absent
+      become: true
+
+    - name: "tldr | Download tlrc Release"
+      ansible.builtin.get_url:
+        url: "https://github.com/tldr-pages/tlrc/releases/download/{{ tlrc_latest_release }}/{{ tlrc_file }}.tar.gz"
+        dest: /tmp/
+        mode: "0644"
+        force: true
+      notify:
+        - Cleanup tlrc downloaded tar
+
+    - name: "tldr | Ensure clean extraction destination"
+      ansible.builtin.file:
+        path: "/tmp/tlrc"
+        state: absent
+      become: true
+
+    - name: "tldr | Create extraction directory"
+      ansible.builtin.file:
+        path: "/tmp/tlrc"
+        state: directory
+        mode: "0755"
+      become: true
+
+    - name: "tldr | Extract tlrc tar file"
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ tlrc_file }}.tar.gz"
+        dest: /tmp/tlrc
+        remote_src: true
+      become: true
+
+    - name: "tldr | Remove any current tlrc installation"
+      ansible.builtin.file:
+        path: /usr/local/bin/tldr
+        state: absent
+      become: true
+
+    - name: "tldr | Install tlrc"
+      ansible.builtin.copy:
+        remote_src: true
+        src: /tmp/tlrc/tldr
+        dest: /usr/local/bin/
+        mode: "0755"
+      become: true
+
+    - name: "tldr | Cleanup extracted tlrc directory"
+      ansible.builtin.file:
+        path: /tmp/tlrc/tldr
+        state: absent
+      become: true
+
+  # If already up-to-date
+- name: "tldr | Already at latest version"
+  debug:
+    msg: "tlrc is already up to date ({{ current_tlrc_version.stdout }})."
+  when: tlrc_latest_release in current_tlrc_version.stdout | default('')

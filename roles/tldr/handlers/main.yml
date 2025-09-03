@@ -1,0 +1,6 @@
+---
+- name: Cleanup tlrc downloaded tar
+  ansible.builtin.file:
+    path: "/tmp/{{ tlrc_file }}.tar.gz"
+    state: absent
+  become: true
