@@ -13,10 +13,10 @@ return {
         command_palette = false,
       },
       notify = {
-        enabled = false
+        enabled = true
       },
       messages = {
-        enabled = false
+        enabled = true
       },
       lsp = {
         override = {
