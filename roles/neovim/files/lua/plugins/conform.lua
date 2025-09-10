@@ -53,6 +53,19 @@ return {
     }
 
     conform.setup({
+      formatters = {
+        php_cs_fixer = {
+          command = vim.fn.stdpath("data") .. "/mason/bin/php-cs-fixer",
+          args = { "fix", "--quiet", "--using-cache=no", "$FILENAME" },
+          stdin = false,
+          cwd = require("conform.util").root_file({
+            ".php-cs-fixer.php",
+            "composer.json",
+            ".editorconfig",
+          }),
+          require_cwd = true,
+        },
+      },
       formatters_by_ft = {
         lua = { "stylua" },
         javascript = { "biome", "pretter", stop_after_first = true },
@@ -65,7 +78,7 @@ return {
         css = { "biome", "prettier", stop_after_first = true },
         scss = { "prettier" },
         markdown = { "prettier" },
-        php = { "prettier" },
+        php = { "php_cs_fixer", "prettier", stop_after_first = true },
         vue = { "prettier" },
         python = { "isort", "black" },
         go = { "goimports", "gofumpt" },
