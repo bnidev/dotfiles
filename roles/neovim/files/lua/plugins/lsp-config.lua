@@ -23,6 +23,8 @@ return {
           "gopls",
           "dockerls",
           "docker_compose_language_service",
+          "intelephense",
+          "laravel_ls",
         },
       })
     end,
@@ -154,6 +156,15 @@ return {
             },
           },
         },
+      })
+
+      lspconfig.intelephense.setup({
+        capabilities = capabilities,
+      })
+
+      lspconfig.laravel_ls.setup({
+        capabilities = capabilities,
+        filetypes = { "php", "blade" },
       })
     end,
   },
