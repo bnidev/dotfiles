@@ -31,7 +31,7 @@ local function review(diff_cmd, prompt_path, no_changes_msg)
 
   local final_prompt = prompt .. "\n" .. "```diff\n" .. diff .. "\n```"
   chat.open()
-  chat.ask(final_prompt, { model = "gpt-4" })
+  chat.ask(final_prompt, { model = "gpt-5" })
 end
 
 function M.CopilotReviewUnstaged()
