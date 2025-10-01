@@ -10,6 +10,6 @@
     repo: https://github.com/junegunn/fzf.git
     depth: 1
     dest: "{{ ansible_user_dir }}/.fzf"
-  environment:
-    GIT_TERMINAL_PROMPT: 0
-  notify: "Install FZF"
+
+- name: "Install FZF"
+  ansible.builtin.shell: "{{ ansible_user_dir }}/.fzf/install --all --no-update-rc"
