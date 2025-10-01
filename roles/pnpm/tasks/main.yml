@@ -1,0 +1,19 @@
+---
+- name: "pnpm | Detect if already installed"
+  command: pnpm --version
+  register: pnpm_check
+  ignore_errors: true
+  changed_when: false
+
+- name: "pnpm | Install"
+  shell: curl -fsSL https://get.pnpm.io/install.sh | env PNPM_HOME=/usr/local/pnpm sh -
+  become: true
+  when: pnpm_check.rc != 0
+
+- name: "pnpm | Create symlink to /usr/local/bin"
+  file:
+    src: /usr/local/pnpm/pnpm
+    dest: /usr/local/bin/pnpm
+    state: link
+  become: true
+  when: pnpm_check.rc != 0
