@@ -29,7 +29,7 @@ function M.CopilotGenerateCommit()
 
   chat.open()
   chat.ask(final_prompt, {
-    model = "gpt-5",
+    model = "gpt-4.1",
   })
 end
 
