@@ -47,6 +47,25 @@ return {
       }),
     }
 
+    -- Override phpcs config for `nvim-lint`
+    lint.linters.phpcs = {
+      name = "phpcs",
+      cmd = vim.fn.stdpath("data") .. "/mason/bin/phpcs",
+      args = { "--standard=PSR12", "$FILENAME" },
+      stdin = false,
+      parser = require("lint.parser").from_errorformat(
+        "%f:%l:%c: %m (%t)",
+        {
+          source = "phpcs",
+          severity = {
+            E = vim.diagnostic.severity.ERROR,
+            W = vim.diagnostic.severity.WARN,
+            S = vim.diagnostic.severity.INFO,
+          },
+        }
+      ),
+    }
+
     local biome_filetypes = {
       javascript = true,
       typescript = true,
@@ -59,6 +78,7 @@ return {
       python = { "pylint" },
       go = { "golangcilint" },
       css = { "biomejs" },
+      php = { "phpcs" }
     }
 
     local lint_augroup = vim.api.nvim_create_augroup("nvim_lint", { clear = true })
