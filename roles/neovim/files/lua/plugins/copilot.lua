@@ -9,8 +9,6 @@ return {
           enabled = true,
           auto_refresh = true,
           keymap = {
-            jump_prev = "<M-[>",
-            jump_next = "<M-]>",
             accept = "<C-]>",
             refresh = "F5",
             open = "<M-CR>",
@@ -22,8 +20,6 @@ return {
           debounce = 1000,
           keymap = {
             accept = "<C-a>",
-            next = "<M-]>",
-            prev = "<M-[>",
             dismiss = "<C-e>",
           },
         },
