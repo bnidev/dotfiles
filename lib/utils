@@ -1,0 +1,160 @@
+#!/bin/bash
+
+# Cleanup function for exit
+cleanup() {
+  # Kill spinner if running
+  if [[ $SPINNER_PID != "" ]]; then
+    kill $SPINNER_PID 2>/dev/null
+    wait $SPINNER_PID 2>/dev/null
+  fi
+  # Show cursor
+  tput cnorm
+}
+
+# Detect operating system
+detect_os() {
+  if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    echo $ID
+  else
+    echo $(uname -s | tr '[:upper:]' '[:lower:]')
+  fi
+}
+
+# Show usage/help information
+show_help() {
+  echo -e "${CAT_SAPPHIRE}bnidev Dotfiles${NC} - Ansible-based dotfiles management"
+  echo ""
+  echo -e "${CAT_BLUE}USAGE:${NC}"
+  echo "    dotfiles [OPTIONS] [-- ANSIBLE_ARGS]"
+  echo ""
+  echo -e "${CAT_BLUE}OPTIONS:${NC}"
+  echo -e "    ${CAT_GREEN}-h, --help${NC}              Show this help message"
+  echo -e "    ${CAT_GREEN}--version${NC}               Show version information"
+  echo ""
+  echo -e "${CAT_BLUE}EXAMPLES:${NC}"
+  echo -e "    ${CAT_SUBTEXT1}# Run full dotfiles installation${NC}"
+  echo "    dotfiles"
+  echo ""
+  echo -e "    ${CAT_SUBTEXT1}# Install specific roles only${NC}"
+  echo "    dotfiles -t neovim,git,tmux"
+  echo ""
+  echo -e "    ${CAT_SUBTEXT1}# Dry run (test without applying)${NC}"
+  echo "    dotfiles --check"
+  echo ""
+  echo -e "${CAT_BLUE}ANSIBLE ARGUMENTS:${NC}"
+  echo "    All arguments not recognized by dotfiles are passed to ansible-playbook."
+  echo "    Common options: -t <tags>, --check, -vvv, --list-tags"
+  echo ""
+  echo -e "${CAT_SUBTEXT0}For more information: https://github.com/bnidev/dotfiles${NC}"
+}
+
+# Show version information
+show_version() {
+  local git_hash=""
+  if [[ -d "$DOTFILES_DIR/.git" ]]; then
+    git_hash=$(git -C "$DOTFILES_DIR" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+  fi
+  echo -e "${CAT_SAPPHIRE}bnidev Dotfiles${NC} version ${CAT_GREEN}${DOTFILES_VERSION}${NC} (${CAT_SUBTEXT1}${git_hash}${NC})"
+}
+
+# Spinner function that runs in background
+_spinner() {
+  local task_text="$1"
+  local chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  local delay=0.08
+
+  # Hide cursor
+  tput civis
+
+  # Save cursor position
+  tput sc
+
+  while true; do
+    for char in "${chars[@]}"; do
+      # Restore cursor position and clear line
+      tput rc
+      tput el
+      printf "${CAT_OVERLAY1} [${CAT_SAPPHIRE}${char}${CAT_OVERLAY1}]  ${CAT_TEXT}${task_text}" >&2
+      sleep $delay
+    done
+  done
+}
+
+# Start a new task with spinner
+__task() {
+  # if a task is running, complete it first
+  if [[ $TASK != "" ]] && [[ $SPINNER_PID != "" ]]; then
+    _task_done
+  fi
+
+  # set new task
+  TASK=$1
+
+  # Start spinner in background
+  _spinner "$TASK" &
+  SPINNER_PID=$!
+
+  # Disable job control messages
+  disown $SPINNER_PID 2>/dev/null
+}
+
+# _cmd performs commands with error checking
+_cmd() {
+  #create log if it doesn't exist
+  if ! [[ -f $DOTFILES_LOG ]]; then
+    touch $DOTFILES_LOG
+  fi
+  # empty conduro.log
+  > $DOTFILES_LOG
+
+  # hide stdout, on error we print and exit
+  if eval "$1" 1> /dev/null 2> $DOTFILES_LOG; then
+    return 0 # success
+  else
+    # Kill spinner if running
+    if [[ $SPINNER_PID != "" ]]; then
+      kill $SPINNER_PID 2>/dev/null
+      wait $SPINNER_PID 2>/dev/null
+      SPINNER_PID=""
+    fi
+
+    # Show cursor again
+    tput cnorm
+
+    # Clear the line and show error
+    printf "\r\033[K${CAT_RED} [✗]  ${CAT_TEXT}${TASK}${NC}\n"
+
+    # Show error details
+    local line
+    while read -r line; do
+      printf "      ${CAT_MAROON}%s${NC}\n" "$line"
+    done < "$DOTFILES_LOG"
+    printf "\n"
+
+    # remove log file
+    rm $DOTFILES_LOG
+    # exit installation
+    exit 1
+  fi
+}
+
+_clear_task() {
+  TASK=""
+}
+
+_task_done() {
+  # Kill spinner if running
+  if [[ $SPINNER_PID != "" ]]; then
+    kill $SPINNER_PID 2>/dev/null
+    wait $SPINNER_PID 2>/dev/null
+    SPINNER_PID=""
+  fi
+
+  # Show cursor again
+  tput cnorm
+
+  # Clear line and show success
+  printf "\r\033[K${CAT_GREEN} [✓]  ${CAT_TEXT}${TASK}\n"
+  _clear_task
+}
