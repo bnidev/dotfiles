@@ -5,9 +5,14 @@ I automated my development setup with [Ansible](https://github.com/ansible/ansib
 ## Core Tools
 
 - **Shell:** [fish](https://fishshell.com/)
-- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/)
+- **Terminal:** [WezTerm](https://wezfurlong.org/wezterm/) / [Ghostty](https://ghostty.org/)
 - **Prompt:** [Starship](https://starship.rs/)
 - **Editor:** [Neovim](https://github.com/neovim/neovim)
+
+## Supported OSes
+
+- Ubuntu 22.04 and later
+- Arch Linux
 
 ## Noteworthy CLI Tools and Plugins
 
@@ -30,4 +35,5 @@ Make sure your OS is up to date and does not have any warnings or errors when yo
 The keyring or source may already exist, but with a different name or version. Try removing it and running the playbook again.
 
 ## Credits
+
 The Ansible setup is inspired by [TechDufus](https://github.com/TechDufus/dotfiles/) and [Alt-F4-LLC](https://github.com/ALT-F4-LLC/dotfiles).
