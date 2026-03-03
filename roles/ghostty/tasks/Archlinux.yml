@@ -1,0 +1,6 @@
+---
+- name: "Ghostty | Install on Arch Linux"
+  ansible.builtin.pacman:
+    name: ghostty
+    state: present
+  become: true

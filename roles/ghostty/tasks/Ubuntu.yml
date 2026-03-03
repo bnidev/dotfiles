@@ -1,0 +1,7 @@
+---
+- name: "Ghostty | Install on Ubuntu"
+  ansible.builtin.shell: |
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
+  args:
+    creates: /usr/bin/ghostty
+  become: true
