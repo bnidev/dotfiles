@@ -1,5 +1,5 @@
 - name: "Check if nvm.fish is installed"
-  shell: "grep 'jorgebucaran/nvm.fish' /home/{{ ansible_env['USER'] }}/.config/fish/fish_plugins"
+  shell: "grep 'jorgebucaran/nvm.fish' /home/{{ ansible_facts['env']['USER'] }}/.config/fish/fish_plugins"
   register: grep_result
   ignore_errors: true
   changed_when: "'jorgebucaran/nvm.fish' not in grep_result.stdout"

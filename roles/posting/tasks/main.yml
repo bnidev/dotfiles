@@ -1,6 +1,6 @@
 - name: Check if 'uv' is installed
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/bin/uv"
+    path: "{{ ansible_facts['env']['HOME'] }}/.local/bin/uv"
   register: uv_binary
 
 - name: Download the UV install script
@@ -17,14 +17,14 @@
   when: not uv_binary.stat.exists
 
 - name: Check if 'posting' tool is installed
-  ansible.builtin.shell: "{{ ansible_env.HOME }}/.local/bin/uv tool list"
+  ansible.builtin.shell: "{{ ansible_facts['env']['HOME'] }}/.local/bin/uv tool list"
   register: uv_tool_list
   changed_when: false
   failed_when: false
   when: uv_binary.stat.exists
 
 - name: Install 'posting' tool using uv
-  ansible.builtin.shell: "{{ ansible_env.HOME }}/.local/bin/uv tool install --python 3.13 posting"
+  ansible.builtin.shell: "{{ ansible_facts['env']['HOME'] }}/.local/bin/uv tool install --python 3.13 posting"
   when:
     - uv_binary.stat.exists
     - "'posting' not in uv_tool_list.stdout"
