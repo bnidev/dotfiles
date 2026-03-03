@@ -1,0 +1,8 @@
+---
+- name: "{{ role_name }} | {{ ansible_distribution }} | Install Wireguard"
+  ansible.builtin.pacman:
+    name:
+      - wireguard-tools
+    state: present
+  become: true
+  when: not ansible_host_environment_is_wsl

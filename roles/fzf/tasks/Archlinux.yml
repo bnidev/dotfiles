@@ -1,0 +1,6 @@
+---
+- name: "FZF | Install via pacman"
+  ansible.builtin.pacman:
+    name: fzf
+    state: present
+  become: true

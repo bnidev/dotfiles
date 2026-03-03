@@ -1,13 +1,9 @@
 ---
-- name: Check if cargo is installed
-  ansible.builtin.command: which cargo
-  register: cargo_check
-  changed_when: false
-  failed_when: false
+- name: "{{ role_name }} | Checking for Distribution Config: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/tasks/{{ ansible_facts['distribution'] }}.yml"
+  register: distribution_config
 
-- name: tokei | {{ ansible_distribution }} | Install tokei
-  ansible.builtin.command: cargo install tokei
-  args:
-    creates: "{{ ansible_env.HOME }}/.cargo/bin/tokei"
-  become: true
-  when: cargo_check.rc == 0
+- name: "{{ role_name }} | Run Tasks: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.include_tasks: "{{ ansible_facts['distribution'] }}.yml"
+  when: distribution_config.stat.exists

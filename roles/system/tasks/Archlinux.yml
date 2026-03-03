@@ -1,0 +1,9 @@
+---
+- name: "System | Install packages"
+  ansible.builtin.pacman:
+    name:
+      - zip
+      - jq
+      - btop
+    state: present
+  become: true

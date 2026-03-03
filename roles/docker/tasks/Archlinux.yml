@@ -1,0 +1,9 @@
+---
+- name: "Docker | Install Docker Engine"
+  ansible.builtin.pacman:
+    name:
+      - docker
+      - docker-compose
+      - docker-buildx
+    state: present
+  become: true

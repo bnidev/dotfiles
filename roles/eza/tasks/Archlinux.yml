@@ -1,0 +1,6 @@
+---
+- name: "eza | Install"
+  ansible.builtin.pacman:
+    name: eza
+    state: present
+  become: true

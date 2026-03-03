@@ -1,6 +1,6 @@
 ---
 - name: Get user's default shell
-  ansible.builtin.command: getent passwd "{{ ansible_env['USER']}}"
+  ansible.builtin.command: getent passwd "{{ ansible_facts['env']['USER'] }}"
   register: passwd_entry
   changed_when: false
 
