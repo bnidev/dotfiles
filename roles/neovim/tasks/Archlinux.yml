@@ -1,0 +1,7 @@
+---
+- name: "Neovim | Install"
+  ansible.builtin.pacman:
+    name:
+      - neovim
+    state: present
+  become: true

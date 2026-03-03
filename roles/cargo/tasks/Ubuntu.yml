@@ -1,0 +1,6 @@
+---
+- name: "cargo | {{ ansible_distribution }} | Install cargo"
+  ansible.builtin.apt:
+    name: cargo
+    state: present
+  become: true

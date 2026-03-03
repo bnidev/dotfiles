@@ -1,0 +1,14 @@
+---
+- name: "Go-Lang | Install dependencies"
+  ansible.builtin.pacman:
+    name:
+      - curl
+      - gcc
+      - git
+      - findutils
+      - make
+      - rsync
+      - tar
+      - jq
+    state: present
+  become: true

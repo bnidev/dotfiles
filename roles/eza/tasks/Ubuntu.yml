@@ -1,0 +1,54 @@
+---
+- name: Ensure the gpg package is installed
+  apt:
+    name: gpg
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Create the keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Download GPG key for eza repository
+  get_url:
+    url: https://raw.githubusercontent.com/eza-community/eza/main/deb.asc
+    dest: /etc/apt/keyrings/gierens.gpg_armored
+    mode: '0644'
+  become: true
+
+- name: De-Armor eza GPG key
+  ansible.builtin.shell: gpg --dearmor -o /etc/apt/keyrings/gierens.gpg /etc/apt/keyrings/gierens.gpg_armored
+  args:
+    creates: /etc/apt/keyrings/gierens.gpg
+  become: true
+
+- name: Add the eza repository to the sources list
+  lineinfile:
+    path: /etc/apt/sources.list.d/gierens.list
+    line: "deb [arch=amd64 signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main"
+    create: yes
+  become: true
+
+- name: Ensure the keyring and sources list file have correct permissions
+  file:
+    path: "{{ item }}"
+    mode: '0644'
+  with_items:
+    - /etc/apt/keyrings/gierens.gpg
+    - /etc/apt/sources.list.d/gierens.list
+  become: true
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install eza
+  apt:
+    name: eza
+    state: present
+  become: true

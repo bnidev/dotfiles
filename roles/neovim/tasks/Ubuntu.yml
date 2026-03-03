@@ -1,0 +1,99 @@
+---
+- name: "Neovim | Check if Neovim is installed"
+  ansible.builtin.command:
+    cmd: nvim --version
+  register: nvim_check
+  ignore_errors: true
+  changed_when: nvim_check.rc != 0
+  failed_when: false
+
+- name: "Neovim | Skip installation if Neovim is already installed"
+  ansible.builtin.debug:
+    msg: "{{ nvim_check.stdout_lines[0] }} is already installed. Skipping installation."
+  when: nvim_check.rc == 0
+  changed_when: false
+
+- name: "Neovim | Ensure dependencies are installed"
+  become: true
+  ansible.builtin.apt:
+    name:
+      - wget
+      - tar
+    state: present
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Download Neovim tarball"
+  ansible.builtin.get_url:
+    url: https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-linux-x86_64.tar.gz
+    dest: /tmp/nvim-linux-x86_64.tar.gz
+    mode: '0644'
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Create directory for Neovim"
+  become: true
+  ansible.builtin.file:
+    path: /opt/neovim
+    state: directory
+    mode: '0755'
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Extract Neovim tarball"
+  become: true
+  ansible.builtin.unarchive:
+    src: /tmp/nvim-linux-x86_64.tar.gz
+    dest: /opt/neovim/
+    remote_src: yes
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Copy Neovim binaries to /usr/local/bin"
+  become: true
+  ansible.builtin.copy:
+    src: /opt/neovim/nvim-linux-x86_64/bin/nvim
+    dest: /usr/bin/nvim
+    mode: '0755'
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Copy Neovim runtime files to /usr/share"
+  become: true
+  ansible.posix.synchronize:
+    src: /opt/neovim/nvim-linux-x86_64/share/
+    dest: /usr/share/
+    rsync_opts:
+      - "--quiet"
+  delegate_to: localhost
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Copy Neovim libraries to /usr/lib/nvim"
+  become: true
+  ansible.posix.synchronize:
+    src: /opt/neovim/nvim-linux-x86_64/lib/nvim/
+    dest: /usr/lib/nvim/
+    rsync_opts:
+      - "--quiet"
+  delegate_to: localhost
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Verify Neovim installation"
+  ansible.builtin.command:
+    cmd: nvim --version
+  register: nvim_version
+  changed_when: false
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Display Neovim version"
+  ansible.builtin.debug:
+    msg: "Neovim version: {{ nvim_version.stdout }}"
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Clean up the tarball"
+  ansible.builtin.file:
+    path: /tmp/nvim-linux-x86_64.tar.gz
+    state: absent
+  when: nvim_check.rc != 0
+
+- name: "Neovim | Clean up the temporary Neovim extraction directory"
+  become: true
+  ansible.builtin.file:
+    path: /opt/neovim
+    state: absent
+  when: nvim_check.rc != 0

@@ -1,46 +1,43 @@
 ---
-  - name: "FISH | Add the fish shell PPA"
-    apt_repository:
-      repo: ppa:fish-shell/release-3
-      state: present
-    become: true
+- name: "{{ role_name }} | Checking for Distribution Config: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/tasks/{{ ansible_facts['distribution'] }}.yml"
+  register: distribution_config
 
-  - name: "FISH | Install fish shell"
-    apt:
-      name: fish
-      state: present
-    become: true
+- name: "{{ role_name }} | Run Tasks: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.include_tasks: "{{ ansible_facts['distribution'] }}.yml"
+  when: distribution_config.stat.exists
 
-  - name: "FISH | Set fish shell as default for the user"
-    user:
-      name: "{{ ansible_env['USER']}}"
-      shell: /usr/bin/fish
-    become: true
+- name: "FISH | Set fish shell as default for the user"
+  user:
+    name: "{{ ansible_facts['env']['USER'] }}"
+    shell: /usr/bin/fish
+  become: true
 
-  - name: "FISH | Install Fisher plugin manager"
-    ansible.builtin.shell: |
-      fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
-    args:
-      creates: /home/{{ ansible_env['USER'] }}/.config/fish/functions/fisher.fish
-    become: yes
-    become_user: "{{ ansible_env['USER']}}"
-    environment:
-      FISH_USER_PATH: /home/{{ ansible_env['USER'] }}/.config/fish
+- name: "FISH | Install Fisher plugin manager"
+  ansible.builtin.shell: |
+    fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+  args:
+    creates: /home/{{ ansible_facts['env']['USER'] }}/.config/fish/functions/fisher.fish
+  become: true
+  become_user: "{{ ansible_facts['env']['USER'] }}"
+  environment:
+    FISH_USER_PATH: /home/{{ ansible_facts['env']['USER'] }}/.config/fish
 
-  - name: "Get installed plugins"
-    shell: cat /home/{{ ansible_env['USER'] }}/.config/fish/fish_plugins
-    register: user_installed_fish_plugins
+- name: "Get installed plugins"
+  shell: cat /home/{{ ansible_facts['env']['USER'] }}/.config/fish/fish_plugins
+  register: user_installed_fish_plugins
 
-  - name: "FISH | Install z plugin"
-    ansible.builtin.shell: fish -c "fisher install jethrokuan/z"
-    when: user_installed_fish_plugins.stdout.find('jethrokuan/z') == -1
+- name: "FISH | Install z plugin"
+  ansible.builtin.shell: fish -c "fisher install jethrokuan/z"
+  when: user_installed_fish_plugins.stdout.find('jethrokuan/z') == -1
 
-  - name: "FISH | Install nvm.fish plugin"
-    ansible.builtin.shell: fish -c "fisher install jorgebucaran/nvm.fish"
-    when: user_installed_fish_plugins.stdout.find('jorgebucaran/nvm.fish') == -1
+- name: "FISH | Install nvm.fish plugin"
+  ansible.builtin.shell: fish -c "fisher install jorgebucaran/nvm.fish"
+  when: user_installed_fish_plugins.stdout.find('jorgebucaran/nvm.fish') == -1
 
-  - name: "Copy config files"
-    ansible.builtin.copy:
-      dest: /home/{{ ansible_env['USER'] }}/.config/fish/
-      src: "{{ role_path }}/files/"
-      force: true
+- name: "Copy config files"
+  ansible.builtin.copy:
+    dest: /home/{{ ansible_facts['env']['USER'] }}/.config/fish/
+    src: "{{ role_path }}/files/"
+    force: true

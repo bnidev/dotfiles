@@ -1,0 +1,25 @@
+---
+- name: "SSHS | Getting version information"
+  ansible.builtin.command: sshs --version
+  register: current_sshs_version
+  changed_when: false
+  failed_when: false
+
+- name: "SSHS | Get the latest release version from GitHub API"
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/quantumsheep/sshs/releases/latest"
+    method: GET
+    return_content: true
+  register: latest_release
+  failed_when: false
+
+- name: "SSHS | Parse latest release version"
+  ansible.builtin.set_fact:
+    latest_version: "{{ latest_release.json.tag_name | regex_replace('^v', '') }}"
+
+- name: "SSHS | Install"
+  ansible.builtin.pacman:
+    name: sshs
+    state: present
+  become: true
+  when: latest_version not in current_sshs_version.stdout | default('')

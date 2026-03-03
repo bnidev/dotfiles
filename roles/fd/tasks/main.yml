@@ -1,13 +1,9 @@
-- name: Install fd-find
-  become: true
-  ansible.builtin.package:
-    state: present
-    name: fd-find
+---
+- name: "{{ role_name }} | Checking for Distribution Config: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/tasks/{{ ansible_facts['distribution'] }}.yml"
+  register: distribution_config
 
-- name: Create link fd to fdfind in Debian
-  become: true
-  ansible.builtin.file:
-    src: '/usr/bin/fdfind'
-    dest: '/usr/bin/fd'
-    state: link
-  when: ansible_os_family == 'Debian'
+- name: "{{ role_name }} | Run Tasks: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.include_tasks: "{{ ansible_facts['distribution'] }}.yml"
+  when: distribution_config.stat.exists

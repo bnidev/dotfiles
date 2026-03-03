@@ -1,0 +1,6 @@
+---
+- name: "Mattermost | Install desktop app"
+  ansible.builtin.pacman:
+    name: mattermost-desktop
+    state: present
+  become: true

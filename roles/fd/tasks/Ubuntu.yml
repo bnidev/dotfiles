@@ -1,0 +1,13 @@
+---
+- name: "fd | Install fd-find"
+  become: true
+  ansible.builtin.apt:
+    state: present
+    name: fd-find
+
+- name: "fd | Create link fd to fdfind"
+  become: true
+  ansible.builtin.file:
+    src: '/usr/bin/fdfind'
+    dest: '/usr/bin/fd'
+    state: link
