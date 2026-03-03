@@ -1,0 +1,6 @@
+---
+- name: "FISH | Install fish shell"
+  ansible.builtin.pacman:
+    name: fish
+    state: present
+  become: true

@@ -1,0 +1,7 @@
+---
+- name: "WezTerm | Install"
+  ansible.builtin.pacman:
+    name: wezterm
+    state: present
+  become: true
+  when: not ansible_host_environment_is_wsl

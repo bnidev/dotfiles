@@ -1,0 +1,29 @@
+---
+- name: "Mattermost | Check if mattermost-desktop is installed"
+  command: dpkg-query -W -f='${Status}' mattermost-desktop
+  register: mattermost_check
+  ignore_errors: true
+  changed_when: false
+
+- name: "Mattermost | Purge old mattermost-desktop remnants"
+  apt:
+    name: mattermost-desktop
+    state: absent
+    purge: true
+  become: true
+  when: mattermost_check.rc == 0 and "'deinstall ok config-files' in mattermost_check.stdout"
+
+- name: "Mattermost | Setup repository"
+  shell: curl -fsS -o- https://deb.packages.mattermost.com/setup-repo.sh | bash
+  args:
+    executable: /bin/bash
+  become: true
+  when: mattermost_check.rc != 0 or "'deinstall ok config-files' in mattermost_check.stdout"
+
+- name: "Mattermost | Install desktop app"
+  apt:
+    name: mattermost-desktop
+    state: present
+    update_cache: true
+  become: true
+  when: mattermost_check.rc != 0 or "'deinstall ok config-files' in mattermost_check.stdout"

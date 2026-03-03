@@ -1,21 +1,12 @@
 ---
-- name: "Go-Lang | Install dependencies"
-  ansible.builtin.apt:
-    pkg:
-      - 'curl'
-      - 'gcc'
-      - 'git'
-      - 'findutils'
-      - 'make'
-      - 'rsync'
-      - 'tar'
-      - 'jq'
-    state: present
-  register: apt_result
-  become: true
-  until: apt_result is success
-  retries: 1
-  delay: 2
+- name: "{{ role_name }} | Checking for Distribution Config: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/tasks/{{ ansible_facts['distribution'] }}.yml"
+  register: distribution_config
+
+- name: "{{ role_name }} | Run Tasks: {{ ansible_facts['distribution'] }}"
+  ansible.builtin.include_tasks: "{{ ansible_facts['distribution'] }}.yml"
+  when: distribution_config.stat.exists
 
 - name: "Go-Lang | Define GOARCH"
   ansible.builtin.set_fact:
@@ -77,7 +68,7 @@
       ansible.builtin.get_url:
         url: "https://golang.org/dl/{{ go_file }}.tar.gz"
         dest: /tmp/
-        mode: 0644
+        mode: "0644"
         force: true
       notify:
         - Cleanup go downloaded tar

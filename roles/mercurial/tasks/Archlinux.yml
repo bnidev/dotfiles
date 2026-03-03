@@ -1,0 +1,7 @@
+---
+- name: "Mercurial | {{ ansible_distribution }} | Install hg"
+  ansible.builtin.pacman:
+    name:
+      - mercurial
+    state: present
+  become: true

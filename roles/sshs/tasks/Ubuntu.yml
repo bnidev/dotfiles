@@ -1,0 +1,48 @@
+---
+- name: Get the latest release version from GitHub API
+  uri:
+    url: "https://api.github.com/repos/quantumsheep/sshs/releases/latest"
+    method: GET
+    return_content: yes
+  register: latest_release
+  failed_when: false
+
+- name: Parse latest release version
+  set_fact:
+    latest_version: "{{ latest_release.json.tag_name | regex_replace('^v', '') }}"
+
+- name: Check if SSHS is installed
+  command: dpkg-query -W -f='${Version}' sshs
+  register: sshs_query
+  ignore_errors: true
+  changed_when: false
+
+- name: Set installed version based on dpkg query result
+  set_fact:
+    installed_version: >-
+      {{ sshs_query.stdout | regex_replace('-.*$', '') if sshs_query.rc == 0 else 'none' }}
+
+- name: Compare versions and proceed if latest version is newer
+  block:
+    - name: Download the latest SSHS .deb package
+      get_url:
+        url: "https://github.com/quantumsheep/sshs/releases/download/{{ latest_version }}/sshs-linux-amd64.deb"
+        dest: "/tmp/sshs-linux-amd64.deb"
+        mode: "0644"
+
+    - name: Install the SSHS .deb package
+      ansible.builtin.apt:
+        deb: /tmp/sshs-linux-amd64.deb
+      become: true
+
+    - name: Clean up the downloaded deb file
+      file:
+        path: "/tmp/sshs-linux-amd64.deb"
+        state: absent
+      become: true
+  when: installed_version == 'none' or installed_version != latest_version
+
+- name: Output message if no update is needed
+  debug:
+    msg: "The latest version ({{ latest_version }}) is already installed."
+  when: installed_version == latest_version

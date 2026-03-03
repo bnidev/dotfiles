@@ -1,0 +1,11 @@
+---
+- name: "{{ role_name }} | {{ ansible_distribution }} | Install Wireguard"
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  loop:
+    - wireguard-tools
+    - wireguard
+  when: not ansible_host_environment_is_wsl

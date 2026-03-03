@@ -1,0 +1,9 @@
+---
+- name: "System | Install packages"
+  ansible.builtin.apt:
+    name:
+      - zip
+      - jq
+      - btop
+    state: present
+  become: true

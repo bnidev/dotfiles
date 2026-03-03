@@ -1,0 +1,6 @@
+---
+- name: "Tokei | Install"
+  ansible.builtin.pacman:
+    name: tokei
+    state: present
+  become: true
