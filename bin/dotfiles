@@ -1,69 +1,114 @@
 #!/bin/bash
 
-# color codes
-NC='\033[0m'
-RED='\033[00;31m'
-GREEN='\033[00;32m'
-CYAN='\033[00;36m'
-SEA="\\033[38;5;49m"
-LRED='\033[01;31m'
-LGREEN='\033[01;32m'
-LBLUE='\033[01;34m'
+# ----
+# This script is mostly taken over from TechDufus (github.com/TechDufus) and modified to fit my needs.
+# ----
 
-#emoji codes
-X_MARK="${RED}✘${NC}"
-ARROW="${SEA}\xE2\x96\xB6${NC}"
-BOOK="${RED}\xF0\x9F\x93\x8B${NC}"
-RIGHT_ANGLE="\xE2\x88\x9F"
+source "$(dirname "$0")/../lib/colors"
+source "$(dirname "$0")/../lib/utils"
+source "$(dirname "$0")/../lib/os_setup"
 
 set -e
 
+# Check for tput (required for cursor control)
+if ! command -v tput &> /dev/null; then
+  echo -e "${CAT_RED}Error: 'tput' is required but not found.${NC}"
+  echo -e "${CAT_SUBTEXT1}Please install ncurses (Ubuntu: apt install ncurses-bin, Arch: pacman -S ncurses)${NC}"
+  exit 1
+fi
+
+# Early check for help/version flags (before setup)
+for arg in "$@"; do
+  case $arg in
+    -h|--help)
+      SHOW_HELP=true
+      ;;
+    --version)
+      SHOW_VERSION=true
+      ;;
+  esac
+done
+
+# Paths
 CONFIG_DIR="$HOME/.config/dotfiles"
 DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_LOG="$HOME/.dotfiles.log"
+DOTFILES_VERSION="1.0.0"
 SSH_DIR="$HOME/.ssh"
 
-if ! [ -x "$(command -v ansible)" ]; then
-  printf "${X_MARK}${LRED} Ansible is not installed${NC}\n"
+trap cleanup EXIT INT TERM
 
-  # Add PPA only if it is not already present
-  if ! grep -r "ansible" /etc/apt/sources.list.d/; then
-    printf "${RIGHT_ANGLE} Adding Ansible PPA\n"
-    sudo add-apt-repository ppa:ansible/ansible -y
-    sudo apt update
-  else
-    printf "${GREEN}✓ Ansible PPA is already added... ${LGREEN}skipping${NC}\n"
-  fi
-
-  printf "${RIGHT_ANGLE} Installing Ansible\n"
-  sudo apt install ansible -y
-
-  printf "${LGREEN}✓ Done ${NC}\n"
-
-else
-  printf "${GREEN}✓ Ansible is already installed... ${LGREEN}skipping${NC}\n"
+# Handle early exit for help/version (before setup)
+if [[ "${SHOW_HELP:-}" == "true" ]]; then
+  show_help
+  exit 0
 fi
 
-if ! [[ -f "$SSH_DIR/id_rsa" ]]; then
-  printf "${X_MARK}${LRED} SSH keys missing in '$SSH_DIR/id_rsa'${NC}\n"
-  printf "${RIGHT_ANGLE} Generating SSH keys in '$SSH_DIR'\n"
-  mkdir -p $SSH_DIR
-  chmod 700 $SSH_DIR
-  ssh-keygen -b 4096 -t rsa -f $SSH_DIR/id_rsa -N '' -C $USER@$HOSTNAME
-  cat $SSH_DIR/id_rsa.pub >> $SSH_DIR/authorized_keys
-  printf "${LGREEN}✓ Done ${NC}\n"
-else
-  printf "${GREEN}✓ SSH keys already exist... ${LGREEN}skipping${NC}\n"
+if [[ "${SHOW_VERSION:-}" == "true" ]]; then
+  show_version
+  exit 0
 fi
+
+dotfiles_os=$(detect_os)
+__task "Loading Setup for detected OS: $dotfiles_os"
+case $dotfiles_os in
+  ubuntu)
+    ubuntu_setup
+    ;;
+  arch)
+    arch_setup
+    ;;
+  *)
+    __task "Unsupported OS"
+    _cmd "echo 'Unsupported OS'"
+    ;;
+esac
+
+if ! [[ -d "$DOTFILES_DIR" ]]; then
+  __task "Downloading dotfiles repository (This may take a minute)"
+  # _cmd "git clone --quiet https://github.com/bnidev/dotfiles.git $DOTFILES_DIR"
+  _task_done
+else
+  __task "Updating dotfiles repository"
+  # _cmd "git -C $DOTFILES_DIR pull --quiet"
+  _task_done
+fi
+
+pushd "$DOTFILES_DIR" 2>&1 > /dev/null
 
 if ! [[ -f "$CONFIG_DIR/config.yml" ]]; then
-  printf "${X_MARK}${LRED} Config file missing in '$CONFIG_DIR/config.yml'${NC}\n"
-  printf "${RIGHT_ANGLE} Copying template config file to '$CONFIG_DIR/config.template.yml'\n"
-  cp $DOTFILES_DIR/templates/config.template.yml $CONFIG_DIR/config.template.yml
-  printf "${LGREEN}✓ Done ${NC}\n"
-  printf "${ARROW}${SEA} Please edit the config file and rename it to 'config.yml' so the playbook can run! ${NC}\n"
-  # exit 1
-else
-  printf "${GREEN}✓ Config file exists... ${LGREEN}skipping${NC}\n"
+  echo -e "${YELLOW} [?]  ${CAT_MAUVE}'config.yml' ${CAT_TEXT}file missing in ${CAT_MAUVE}'$CONFIG_DIR'${NC}."
+  read -p "$(echo -e "${YELLOW}Do you want to copy the template? (y/N) ${NC}")" -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if ! [[ -d "$CONFIG_DIR" ]]; then
+      mkdir -p "$CONFIG_DIR"
+    fi
+    cp $DOTFILES_DIR/templates/config.template.yml $CONFIG_DIR/config.yml
+    echo -e "${GREEN} [✓]  ${CAT_MAUVE}'config.yml' ${CAT_TEXT}template copied to ${CAT_MAUVE}'$CONFIG_DIR'${CAT_TEXT}. You can start editing the file now.${NC}"
+  else
+    echo -e "${YELLOW} [!]  ${CAT_TEXT}Config setup cancelled${NC}"
+  fi
+  popd 2>&1 > /dev/null
+  exit 0
 fi
-printf "${BOOK}${LBLUE}Running Ansible Playbook... \n${NC}"
-ansible-playbook --diff --ask-become-pass -i "$DOTFILES_DIR/hosts" --extra-vars "@$CONFIG_DIR/config.yml" "$DOTFILES_DIR/main.yml" "$@"
+
+
+if ! [[ -f "$SSH_DIR/id_rsa" ]]; then
+  echo -e "${YELLOW} [?]  ${CAT_TEXT}No SSH key found in ${CAT_MAUVE}'$SSH_DIR'${CAT_TEXT}.${NC}"
+  read -p "$(echo -e "${YELLOW}Do you want to generate SSH keys? (y/N) ${NC}")" -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if ! [[ -d "$SSH_DIR" ]]; then
+      mkdir -p "$SSH_DIR"
+      chmod 700 "$SSH_DIR"
+    fi
+    ssh-keygen -b 4096 -t rsa -f "$SSH_DIR/id_rsa" -N '' -C "$USER@$HOSTNAME"
+    cat "$SSH_DIR/id_rsa.pub" >> "$SSH_DIR/authorized_keys"
+    echo -e "${GREEN} [✓]  ${CAT_TEXT}SSH keys generated in ${CAT_MAUVE}'$SSH_DIR'${CAT_TEXT}.${NC}"
+  else
+    echo -e "${YELLOW} [!]  ${CAT_TEXT}SSH key generation skipped${NC}"
+  fi
+fi
+
+ansible-playbook --ask-become-pass -i "$DOTFILES_DIR/hosts" --extra-vars "@$CONFIG_DIR/config.yml" "$DOTFILES_DIR/main.yml" "$@"
