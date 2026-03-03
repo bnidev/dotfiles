@@ -36,7 +36,7 @@ ubuntu_setup() {
 arch_setup() {
   if ! [ -x "$(command -v ansible)" ]; then
     __task "Installing Ansible (This may take a few minutes)"
-    _cmd "sudo pacman -Sy --noconfirm"
+    _cmd "sudo pacman -Syu --noconfirm"
     _cmd "sudo pacman -S --noconfirm ansible"
     _cmd "sudo pacman -S --noconfirm python-argcomplete"
     # _cmd "sudo activate-global-python-argcomplete3"
