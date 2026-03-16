@@ -1,0 +1,6 @@
+---
+- name: "opencode | Install"
+  ansible.builtin.pacman:
+    name: opencode
+    state: present
+  become: true

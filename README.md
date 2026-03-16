@@ -62,6 +62,7 @@ dotfiles --check --diff
 | `mercurial` | Version control |
 | `neovim` | Neovim configuration |
 | `nvm` | Node version manager |
+| `opencode` | AI coding agent |
 | `obsidian` | Obsidian integration |
 | `pnpm` | Package manager |
 | `posting` | HTTP client |
