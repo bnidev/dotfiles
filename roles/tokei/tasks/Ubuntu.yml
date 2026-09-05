@@ -5,7 +5,7 @@
   changed_when: false
   failed_when: false
 
-- name: tokei | {{ ansible_distribution }} | Install tokei
+- name: tokei | {{ ansible_facts['distribution'] }} | Install tokei
   ansible.builtin.command: cargo install tokei
   args:
     creates: "{{ ansible_env.HOME }}/.cargo/bin/tokei"

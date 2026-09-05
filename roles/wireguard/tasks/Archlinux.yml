@@ -1,5 +1,7 @@
 ---
-- name: "{{ role_name }} | {{ ansible_distribution }} | Install Wireguard"
+- name: >-
+    {{ role_name }} | {{ ansible_facts['distribution'] }}
+    | Install Wireguard
   ansible.builtin.pacman:
     name:
       - wireguard-tools

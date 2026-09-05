@@ -1,5 +1,5 @@
 ---
-- name: "Mercurial | {{ ansible_distribution }} | Install hg"
+- name: "Mercurial | {{ ansible_facts['distribution'] }} | Install hg"
   ansible.builtin.pacman:
     name:
       - mercurial

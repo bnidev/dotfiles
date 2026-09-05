@@ -13,13 +13,13 @@
 
 - name: Check if $HOME/vaults exists
   stat:
-    path: "{{ ansible_user_dir }}/vaults"
+    path: "{{ ansible_facts['user_dir'] }}/vaults"
   register: vaults_dir_stat
   changed_when: false
 
 - name: Create $HOME/vaults if it doesn't exist
   file:
-    path: "{{ ansible_user_dir }}/vaults"
+    path: "{{ ansible_facts['user_dir'] }}/vaults"
     state: directory
     mode: '0755'
   when: not vaults_dir_stat.stat.exists
@@ -27,14 +27,14 @@
 - name: Create symlinks for each vault
   file:
     src: "{{ item.path }}"
-    dest: "{{ ansible_user_dir }}/vaults/{{ item.name }}"
+    dest: "{{ ansible_facts['user_dir'] }}/vaults/{{ item.name }}"
     state: link
   with_items: "{{ obsidian.vaults }}"
   when: obsidian.vaults is defined
 
 - name: Copy Templates to each vault
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/vaults/{{ item.name }}/Templates/"
+    dest: "{{ ansible_facts['user_dir'] }}/vaults/{{ item.name }}/Templates/"
     src: "{{ role_path }}/files/Templates/"
     force: true
   with_items: "{{ obsidian.vaults }}"
@@ -43,10 +43,10 @@
 - name: Export obsidian.default_vault to fish config
   blockinfile:
     prepend_newline: true
-    path: "{{ ansible_user_dir }}/.config/fish/parts/obsidian.fish"
+    path: "{{ ansible_facts['user_dir'] }}/.config/fish/parts/obsidian.fish"
     block: |
       # define Obsidian directory
-      export OBSIDIAN_VAULT_DIR={{ansible_user_dir}}/vaults/{{ obsidian.default_vault }}
+      export OBSIDIAN_VAULT_DIR={{ansible_facts['user_dir']}}/vaults/{{ obsidian.default_vault }}
     marker: "# {mark} ANSIBLE BLOCK: {{ role_name }} | Export obsidian.default_vault to fish config"
     create: yes
     state: present

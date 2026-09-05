@@ -1,5 +1,5 @@
 ---
-- name: "cargo | {{ ansible_distribution }} | Install cargo"
+- name: "cargo | {{ ansible_facts['distribution'] }} | Install cargo"
   ansible.builtin.apt:
     name: cargo
     state: present

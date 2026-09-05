@@ -10,7 +10,7 @@
 
 - name: "{{ role_name }} | Copy WezTerm config"
   ansible.builtin.copy:
-    dest: "{{ ansible_user_dir }}/.wezterm.lua"
+    dest: "{{ ansible_facts['user_dir'] }}/.wezterm.lua"
     src: ".wezterm.lua"
     mode: "0644"
   when: not ansible_host_environment_is_wsl

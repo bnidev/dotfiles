@@ -5,7 +5,8 @@
   changed_when: false
   failed_when: false
 
-- name: "opencode | {{ ansible_distribution }} | Install via curl script"
+- name: >-
+    opencode | {{ ansible_facts['distribution'] }} | Install via curl script
   ansible.builtin.shell: curl -fsSL https://opencode.ai/install | bash
   args:
     creates: "{{ ansible_env.HOME }}/.local/bin/opencode"

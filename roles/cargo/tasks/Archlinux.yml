@@ -1,5 +1,7 @@
 ---
-- name: "cargo | {{ ansible_distribution }} | Install rust (includes cargo)"
+- name: >-
+    cargo | {{ ansible_facts['distribution'] }}
+    | Install rust (includes cargo)
   ansible.builtin.pacman:
     name: rust
     state: present

@@ -26,11 +26,12 @@
 - name: "Git | Include default config"
   blockinfile:
     prepend_newline: true
-    path: "{{ lookup('env', 'HOME') }}/.gitconfig"
+    path: "{{ lookup('env', 'HOME') }}/.config/git/config"
     block: |
       [include]
       path = "{{ role_path }}/files/.gitconfig"
     marker: "# {mark} ANSIBLE BLOCK: {{ role_name }} | Include default config"
+    create: true
 
 - name: Create Git configuration function in fish config
   blockinfile:
