@@ -1,38 +1,82 @@
+---
+- name: "Check if FiraCode Nerd Font is already installed"
+  ansible.builtin.stat:
+    path: "/usr/share/fonts/FiraCodeNerdFont-Regular.ttf"
+  register: firacode_font_installed
+
 - name: "Get the latest release tag from the GitHub repository"
-  uri:
+  ansible.builtin.uri:
     url: "https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
     method: GET
-    return_content: yes
+    return_content: true
   register: latest_release
+  check_mode: false
+  when: firacode_font_installed.stat.exists
+
+- name: "Extract the installed FiraCode Nerd Font version from the TTF file"
+  ansible.builtin.shell:
+    cmd: >-
+      strings /usr/share/fonts/FiraCodeNerdFont-Regular.ttf
+      | grep -oE 'Nerd Fonts [0-9]+\.[0-9]+\.[0-9]+'
+      | head -1
+      | sed 's/Nerd Fonts //'
+  register: installed_font_version_raw
+  changed_when: false
+  check_mode: false
+  when: firacode_font_installed.stat.exists
+
+- name: "Set the installed version fact"
+  ansible.builtin.set_fact:
+    installed_font_version: >-
+      {{ installed_font_version_raw.stdout | default('', true) }}
+  when: firacode_font_installed.stat.exists
+
+- name: "Determine if the installed font is up to date"
+  ansible.builtin.set_fact:
+    firacode_font_up_to_date: >-
+      {{ firacode_font_installed.stat.exists
+         and (installed_font_version | default('')) | length > 0
+         and installed_font_version ==
+             ((latest_release.json.tag_name | default(''))
+              | regex_replace('^v', '')) }}
 
 - name: "Set the download URL for the FiraCode Nerd Font zip"
-  set_fact:
-    font_download_url: "{{ latest_release.json.assets | selectattr('name', 'search', 'FiraCode.zip') | map(attribute='browser_download_url') | first }}"
+  ansible.builtin.set_fact:
+    font_download_url: >-
+      {{ (latest_release.json.assets | default([]))
+         | selectattr('name', 'search', 'FiraCode.zip')
+         | map(attribute='browser_download_url')
+         | list
+         | first | default('') }}
+  when: not firacode_font_up_to_date
 
 - name: "Ensure the font download URL is found"
-  fail:
+  ansible.builtin.fail:
     msg: "Could not find FiraCode Nerd Font in the release assets."
-  when: font_download_url is not defined
+  when: >-
+    not firacode_font_up_to_date
+    and (font_download_url | default('')) | length == 0
 
-- name: "Download the FiraCode Nerd Font zip file"
-  get_url:
-    url: "{{ font_download_url }}"
-    dest: "/tmp/FiraCode-Nerd-Font.zip"
-    mode: "0644"
-
-- name: "Unzip the font archive to the fonts directory"
-  unarchive:
-    src: "/tmp/FiraCode-Nerd-Font.zip"
-    dest: "/usr/share/fonts"
-    remote_src: yes
+- name: "Install FiraCode Nerd Font"
   become: true
+  when: not firacode_font_up_to_date
+  block:
+    - name: "Download the FiraCode Nerd Font zip file"
+      ansible.builtin.get_url:
+        url: "{{ font_download_url }}"
+        dest: "/tmp/FiraCode-Nerd-Font.zip"
+        mode: "0644"
 
-- name: "Rebuild font cache"
-  command: fc-cache -fv
-  become: true
+    - name: "Unzip the font archive to the fonts directory"
+      ansible.builtin.unarchive:
+        src: "/tmp/FiraCode-Nerd-Font.zip"
+        dest: "/usr/share/fonts"
+        remote_src: true
 
-- name: "Clean up the downloaded zip file"
-  file:
-    path: "/tmp/FiraCode-Nerd-Font.zip"
-    state: absent
-  become: true
+    - name: "Rebuild font cache"
+      ansible.builtin.command: fc-cache -fv
+
+    - name: "Clean up the downloaded zip file"
+      ansible.builtin.file:
+        path: "/tmp/FiraCode-Nerd-Font.zip"
+        state: absent
