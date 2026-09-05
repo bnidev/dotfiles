@@ -1,38 +1,52 @@
+---
 - name: "Check if nvm.fish is installed"
-  shell: "grep 'jorgebucaran/nvm.fish' /home/{{ ansible_facts['env']['USER'] }}/.config/fish/fish_plugins"
+  ansible.builtin.command:
+    cmd: >-
+      grep -c 'jorgebucaran/nvm.fish'
+      /home/{{ ansible_facts['env']['USER'] }}/.config/fish/fish_plugins
   register: grep_result
-  ignore_errors: true
-  changed_when: "'jorgebucaran/nvm.fish' not in grep_result.stdout"
+  changed_when: false
+  failed_when: false
 
 - name: "Install required Node versions"
   when: grep_result.rc == 0
   block:
     - name: "Install required Node versions"
-      shell: fish -c "nvm install {{ item }}"
+      ansible.builtin.shell: fish -c "nvm install {{ item }}"
       register: install_result
       with_items:
-        - 'lts'
+        - lts
       changed_when: "'Installing' is in install_result.stdout"
 
-    - name: Get the latest LTS version of Node.js
-      shell: fish -c "nvm list-remote lts | tail -n 1"
+    - name: "Get the latest LTS version of Node.js"
+      ansible.builtin.shell: fish -c "nvm list-remote lts | tail -n 1"
       register: latest_lts_version
       changed_when: false
-      failed_when: >
-        latest_lts_version.rc != 0 or
-        not latest_lts_version.stdout|regex_search('\w+\.\w+\.\w+')
+      failed_when: >-
+        latest_lts_version.rc != 0
+        or not latest_lts_version.stdout | regex_search('\w+\.\w+\.\w+')
 
-    - name: Get current Node version
-      shell: fish -c "nvm current"
+    - name: "Get current Node version"
+      ansible.builtin.shell: fish -c "nvm current"
       register: current_node_version
       changed_when: false
       failed_when: false
 
     - name: "Use latest LTS version of Node.js"
-      shell: fish -c "nvm use lts"
-      when: current_node_version.stdout not in latest_lts_version.stdout
+      ansible.builtin.shell: fish -c "nvm use lts"
+      when: >-
+        current_node_version.stdout
+        != (latest_lts_version.stdout
+            | regex_search('v[0-9]+\.[0-9]+\.[0-9]+') | first)
+      changed_when: false
+
+    - name: "Get current default Node version"
+      ansible.builtin.shell: fish -c "echo $nvm_default_version"
+      register: current_default_version
+      changed_when: false
+      failed_when: false
 
     - name: "Set default Node version"
-      shell: fish -c "set --universal nvm_default_version lts"
-      when: current_node_version.stdout not in latest_lts_version.stdout
-
+      ansible.builtin.shell: fish -c "set --universal nvm_default_version lts"
+      when: current_default_version.stdout != "lts"
+      changed_when: false
