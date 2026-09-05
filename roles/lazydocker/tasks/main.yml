@@ -4,6 +4,7 @@
     url: https://api.github.com/repos/jesseduffield/lazydocker/releases/latest
   register: lazydocker_latest_version_json
   changed_when: false
+  check_mode: false
 
 - name: "LAZYDOCKER | Registering lazydocker Latest Release"
   ansible.builtin.set_fact:
@@ -11,12 +12,14 @@
 
 - name: "LAZYDOCKER | Getting current lazydocker version"
   ansible.builtin.shell:
-    cmd: /usr/local/bin/lazydocker --version | grep -oP 'version=\K[^,]+' | awk 'NR==1' | sed 's/^/v/'
+    cmd: >-
+      /usr/local/bin/lazydocker --version | grep -oP '\K[0-9]+\.[0-9]+\.[0-9]+' | awk 'NR==1' | sed 's/^/v/'
   args:
     executable: /bin/bash
   register: current_lazydocker_version
   changed_when: false
   failed_when: false
+  check_mode: false
 
 - name: "LAZYDOCKER | Show current_lazydocker_version"
   ansible.builtin.debug:
@@ -27,7 +30,9 @@
     var: lazydocker_latest_release
 
 - name: "LAZYDOCKER | Install"
-  when: lazydocker_latest_release not in current_lazydocker_version.stdout | default('')
+  when: >-
+    current_lazydocker_version.stdout | default('')
+    != (lazydocker_latest_release | default(''))
   block:
 
     - name: "LAZYDOCKER | Define lazydocker_file"
