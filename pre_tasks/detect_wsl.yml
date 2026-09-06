@@ -19,3 +19,27 @@
 - name: Show WSL State
   ansible.builtin.debug:
     msg: "WSL State: '{{ ansible_host_environment_is_wsl }}'"
+
+- name: Detect WSL Default Distro Name
+  ansible.builtin.shell:
+    cmd: (wsl -l -v | Select-String '\*' | Select-Object -First 1).Line.Split()[0].Trim()
+  register: wsl_default_distro_raw
+  args:
+    executable: powershell.exe
+  changed_when: false
+  failed_when: false
+  when: ansible_host_environment_is_wsl
+
+- name: Register WSL Default Distro fact
+  ansible.builtin.set_fact:
+    wsl_default_distro: "{{ wsl_default_distro_raw.stdout }}"
+  when:
+    - ansible_host_environment_is_wsl
+    - wsl_default_distro_raw is defined
+    - wsl_default_distro_raw.stdout is defined
+    - wsl_default_distro_raw.stdout | length > 0
+
+- name: Show WSL Default Distro
+  ansible.builtin.debug:
+    msg: "WSL Default Distro: '{{ wsl_default_distro | default('not detected') }}'"
+  when: ansible_host_environment_is_wsl

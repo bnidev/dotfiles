@@ -70,6 +70,16 @@
         append_newline: true
         block: |
           -- define which WSL version to use on Windows
-          config.default_domain = "WSL:Ubuntu-24.04"
+          config.default_domain = "WSL:{{ wsl_default_distro }}"
         marker: "-- {mark} ANSIBLE BLOCK: {{ role_name }} | Add default domain"
         insertbefore: "return config"
+      when: wsl_default_distro is defined
+
+    - name: Notify user to manually configure WSL default domain
+      ansible.builtin.debug:
+        msg: >
+          Could not auto-detect WSL default distro.
+          To configure WezTerm's default WSL distro, edit:
+          C:\Users\{{ wsl_host_user_folder }}\.wezterm.lua
+          and add: config.default_domain = "WSL:<your-distro-name>"
+      when: wsl_default_distro is not defined
